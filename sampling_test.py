@@ -31,6 +31,7 @@ print('corpus length:', len(text))
 
 chars = sorted(list(set(text)))
 print('total chars:', len(chars))
+print(chars)
 char_indices = dict((c, i) for i, c in enumerate(chars))
 indices_char = dict((i, c) for i, c in enumerate(chars))
 
@@ -76,7 +77,7 @@ def sample(preds, temperature=1.0):
     return np.argmax(probas)
 
 # train the model, output generated text after each iteration
-for iteration in range(1, 3):
+for iteration in range(2):
     print()
     print('-' * 50)
     print('Iteration', iteration)
@@ -98,7 +99,7 @@ for iteration in range(1, 3):
         print('----- Generating with seed: "' + sentence + '"')
         sys.stdout.write(generated)
 
-        for i in range(4):
+        for i in range(2):
             x = np.zeros((1, maxlen, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_indices[char]] = 1.
