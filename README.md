@@ -1,2 +1,2 @@
-# test001
-first create
+あぷろだ代わり
+keras使ってRNNの勉強というか練習する過程のいろいろ
