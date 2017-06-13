@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''Example script to generate text from Nietzsche's writings.
 
 At least 20 epochs are required before the generated text
@@ -64,6 +66,14 @@ model.add(Activation('softmax'))
 optimizer = RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
+def print_top5(list1):
+    #与えられたリストから上位5件の値と対応する文字を表示
+    dict_A = dict((i,c) for i,c in enumerate(list1))
+    list_B = sorted(dict_A.items(), key=lambda x: x[1], reverse=True)
+    list_C = list_B[0:5]
+    for k,v in list_C:
+        print (indices_char[k],v)
+    print()
 
 def sample(preds, temperature=1.0):
     # helper function to sample an index from a probability array
@@ -71,9 +81,9 @@ def sample(preds, temperature=1.0):
     preds = np.log(preds) / temperature
     exp_preds = np.exp(preds)
     preds = exp_preds / np.sum(exp_preds)
-    print('after_normalization\n',preds)
+    print('\nafter_normalization\n')
+    print_top5(preds)
     probas = np.random.multinomial(1, preds, 1)
-    print('after_sampling\n',probas)
     return np.argmax(probas)
 
 # train the model, output generated text after each iteration
@@ -105,13 +115,15 @@ for iteration in range(2):
                 x[0, t, char_indices[char]] = 1.
 
             preds = model.predict(x, verbose=0)[0]
-            print('\n\nbefore_sampling\n',preds)
+            print('\n\nbefore_sampling\n')
+            print_top5(preds)
             next_index = sample(preds, diversity)
             next_char = indices_char[next_index]
-
+            
             generated += next_char
             sentence = sentence[1:] + next_char
-
+            
+            print('\nafter_sampling\n')
             sys.stdout.write(next_char)
             sys.stdout.flush()
         print()
