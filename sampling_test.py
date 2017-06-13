@@ -20,6 +20,7 @@ import numpy as np
 import re
 import random
 import sys
+import datetime
 
 path = get_file('nietzsche.txt', origin='https://s3.amazonaws.com/text-datasets/nietzsche.txt')
 text = open(path).read().lower()
@@ -79,6 +80,8 @@ for iteration in range(1, 3):
     print()
     print('-' * 50)
     print('Iteration', iteration)
+    today=datetime.datetime.today()
+    print('date = ',today)
     model.fit(X, y,
               batch_size=128,
               epochs=1)
@@ -101,7 +104,7 @@ for iteration in range(1, 3):
                 x[0, t, char_indices[char]] = 1.
 
             preds = model.predict(x, verbose=0)[0]
-	    print('before_sampling\n',preds)
+            print('before_sampling\n',preds)
             next_index = sample(preds, diversity)
             next_char = indices_char[next_index]
 
