@@ -105,7 +105,7 @@ for iteration in range(2):
                 x[0, t, char_indices[char]] = 1.
 
             preds = model.predict(x, verbose=0)[0]
-            print('before_sampling\n',preds)
+            print('\n\nbefore_sampling\n',preds)
             next_index = sample(preds, diversity)
             next_char = indices_char[next_index]
 
