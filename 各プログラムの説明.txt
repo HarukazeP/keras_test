@@ -2,7 +2,6 @@
 test.py系はループ回数減らしてるやつ
 
 
-
 original.py		チュートリアルそのまま
 
 original_time.py	時間表示するようにしたやつ
