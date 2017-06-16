@@ -32,9 +32,8 @@ text = re.sub(r"[ ]+", " ", text)
 
 text_list=text.split(" ")
 print('todal words:', len(text_list))
-words = sorted(list(set(text_list)) #まだここ変えたくらい
+words = sorted(list(set(text_list)))
 print('kind of words:', len(words))
-#print(chars)
 word_indices = dict((c, i) for i, c in enumerate(words))
 indices_word = dict((i, c) for i, c in enumerate(words))
 
