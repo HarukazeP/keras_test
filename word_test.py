@@ -121,8 +121,10 @@ for iteration in range(2):
             next_index = sample(preds, diversity)
             next_word = indices_word[next_index]
             
-            generated += next_word
-            sent_list = sent_list[1:].append(next_word)
+            generated = generated + ' ' + next_word
+            tmp =[]
+            tmp.append(next_word)
+            sent_list = sent_list[1:] + tmp
             
             print('\nafter_sampling\n')
             sys.stdout.write(next_word)
