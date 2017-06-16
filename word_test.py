@@ -41,26 +41,26 @@ indices_word = dict((i, c) for i, c in enumerate(words))
 maxlen_words = 10
 step = 3
 sentences = []
-next_chars = []
+next_words = []
 for i in range(0, len(text_list) - maxlen_words, step):
     sentences = text_list[i: i + maxlen_words]
-    next_chars.append(text_list[i + maxlen_words])
+    next_words.append(text_list[i + maxlen_words])
 print('nb sequences:', len(sentences))
 
 print('Vectorization...')
-X = np.zeros((len(sentences), maxlen_words, len(chars)), dtype=np.bool)
-y = np.zeros((len(sentences), len(chars)), dtype=np.bool)
+X = np.zeros((len(sentences), maxlen_words, len(words)), dtype=np.bool)
+y = np.zeros((len(sentences), len(words)), dtype=np.bool)
 for i, sentence in enumerate(sentences):
-    for t, char in enumerate(sentence):
-        X[i, t, word_indices[char]] = 1
-    y[i, word_indices[next_chars[i]]] = 1
+    for t, word in enumerate(sentence):
+        X[i, t, word_indices[word]] = 1
+    y[i, word_indices[next_words[i]]] = 1
 
 
 # build the model: a single LSTM
 print('Build model...')
 model = Sequential()
-model.add(LSTM(128, input_shape=(maxlen_words, len(chars))))
-model.add(Dense(len(chars)))
+model.add(LSTM(128, input_shape=(maxlen_words, len(words))))
+model.add(Dense(len(words)))
 model.add(Activation('softmax'))
 
 optimizer = RMSprop(lr=0.01)
@@ -110,20 +110,20 @@ for iteration in range(2):
         sys.stdout.write(generated)
 
         for i in range(2):
-            x = np.zeros((1, maxlen_words, len(chars)))
-            for t, char in enumerate(sentence):
-                x[0, t, word_indices[char]] = 1.
+            x = np.zeros((1, maxlen_words, len(words)))
+            for t, word in enumerate(sentence):
+                x[0, t, word_indices[word]] = 1.
 
             preds = model.predict(x, verbose=0)[0]
             print('\n\nbefore_sampling\n')
             print_top5(preds)
             next_index = sample(preds, diversity)
-            next_char = indices_word[next_index]
+            next_word = indices_word[next_index]
             
-            generated += next_char
-            sentence = sentence[1:] + next_char
+            generated += next_word
+            sentence = sentence[1:] + next_word
             
             print('\nafter_sampling\n')
-            sys.stdout.write(next_char)
+            sys.stdout.write(next_word)
             sys.stdout.flush()
         print()
