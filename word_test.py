@@ -43,7 +43,7 @@ step = 3
 sentences = []
 next_words = []
 for i in range(0, len(text_list) - maxlen_words, step):
-    sentences = text_list[i: i + maxlen_words]
+    sentences.append(text_list[i: i + maxlen_words])
     next_words.append(text_list[i + maxlen_words])
 print('nb sequences:', len(sentences))
 
@@ -104,14 +104,15 @@ for iteration in range(2):
         print('----- diversity:', diversity)
 
         generated = ''
-        sentence = text_list[start_index: start_index + maxlen_words]
-        generated += sentence
-        print('----- Generating with seed: "' + sentence + '"')
+        sent_list = text_list[start_index: start_index + maxlen_words]
+        sent_str = ' '.join(sent_list)
+        generated += sent_str
+        print('----- Generating with seed: "' + sent_str + '"')
         sys.stdout.write(generated)
 
         for i in range(2):
             x = np.zeros((1, maxlen_words, len(words)))
-            for t, word in enumerate(sentence):
+            for t, word in enumerate(sent_list):
                 x[0, t, word_indices[word]] = 1.
 
             preds = model.predict(x, verbose=0)[0]
@@ -121,7 +122,7 @@ for iteration in range(2):
             next_word = indices_word[next_index]
             
             generated += next_word
-            sentence = sentence[1:] + next_word
+            sent_list = sent_list[1:].append(next_word)
             
             print('\nafter_sampling\n')
             sys.stdout.write(next_word)
