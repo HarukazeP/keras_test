@@ -28,6 +28,8 @@ path = get_file('nietzsche.txt', origin='https://s3.amazonaws.com/text-datasets/
 text = open(path).read().lower()
 text = text.replace("\n", " ")
 text = re.sub(r"[ ]+", " ", text)
+text= text[0:10000]
+#データ軽くするため
 
 print('corpus length:', len(text))
 
@@ -86,7 +88,7 @@ def sample(preds, temperature=1.0):
     probas = np.random.multinomial(1, preds, 1)
     return np.argmax(probas)
 
-def sample_n_list(preds, temperature=1.0, num):
+def sample_n_list(preds, num, temperature=1.0):
     #乱数でn個選ぶんでnp配列に格納
     preds = np.asarray(preds).astype('float64')
     preds = np.log(preds) / temperature
@@ -95,11 +97,17 @@ def sample_n_list(preds, temperature=1.0, num):
     #print('\nafter_normalization\n')
     #print_top5(preds)
     probas = np.random.multinomial(1, preds, num)
-    array = np.where(data=np.argmax(probas))
-    return array.tolist()
+    #print (probas,'\n\n')
+    tmp_list=[]
+    for i in range(0,num):
+        #print (probas[i],'\n')
+	#print(np.argmax(probas[i]),'\n')
+        tmp_list.append(np.argmax(probas[i]))
+    print(tmp_list)
+    return tmp_list
 
 # train the model, output generated text after each iteration
-for iteration in range(2):
+for iteration in range(1):
     print()
     print('-' * 50)
     print('Iteration', iteration)
@@ -111,7 +119,7 @@ for iteration in range(2):
 
     start_index = random.randint(0, len(text) - maxlen - 1)
 
-#    for diversity in [0.2, 0.5, 1.0, 1.2]:
+    #for diversity in [0.2, 0.5, 1.0, 1.2]:
     for diversity in [0.5, 1.0]:
         print()
         print('----- diversity:', diversity)
@@ -122,7 +130,7 @@ for iteration in range(2):
         print('----- Generating with seed: "' + sentence + '"')
         sys.stdout.write(generated)
 
-        for i in range(2):
+        for i in range(1):
             x = np.zeros((1, maxlen, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_indices[char]] = 1.
@@ -130,13 +138,13 @@ for iteration in range(2):
             preds = model.predict(x, verbose=0)[0]
             print('\n\nbefore_sampling\n')
             print_top5(preds)
-            next_index_list = sample_n_list(preds, diversity, num=5)
+            next_index_list = sample_n_list(preds, 5, diversity)
             next_char_list=[]
             print('\nafter_sampling\n')
             for k in range(0, len(next_index_list)):
                 next_char =indices_char[next_index_list[k]]
                 next_char_list.append(next_char)
-                print(k,':',next_char,'\n')
+                print(k,':',next_char)
                 
             
             # ↓とりあえずやってるだけ
