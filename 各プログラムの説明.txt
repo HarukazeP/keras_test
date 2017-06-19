@@ -15,4 +15,4 @@ word_test.py		さらに前処理追加（a～zのみに）．文字ではなく�
 
 char_word_test.py     文字ベースで単語を予測する？これからつくる
 
-char_sampling2_test.py   乱数で複数出力できるか試すやつ．ベルヌーイ分布とかの．これからつくる
+char_sampling2_test.py   乱数で複数出力できるか試すやつ．ベルヌーイ分布とかの．学習データも減らしてる
