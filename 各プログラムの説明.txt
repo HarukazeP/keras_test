@@ -17,4 +17,5 @@ word_test.py		さらに前処理追加（a～zのみに）．文字ではなく�
 
 char_word_test.py     文字ベースで単語を予測する.前処理(a～z)のみに
 
-
+char_merge_test.py    文字ベースで順方向と逆方向でマージ
+word_merge_test.py    その単語ver
