@@ -11,8 +11,10 @@ sampling_test.py	簡単な前処理（改行をスペースに，スペースの
 
 ここ以降はcharかwordを先頭に必ずつける
 
+char_sampling2_test.py   乱数で複数出力できるか試すやつ．ベルヌーイ分布とかの．学習データも減らしてる
+
 word_test.py		さらに前処理追加（a～zのみに）．文字ではなく単語ベースのやつ　※sentenceの型が変化しているので注意
 
-char_word_test.py     文字ベースで単語を予測する？これからつくる
+char_word_test.py     文字ベースで単語を予測する.前処理(a～z)のみに
 
-char_sampling2_test.py   乱数で複数出力できるか試すやつ．ベルヌーイ分布とかの．学習データも減らしてる
+
