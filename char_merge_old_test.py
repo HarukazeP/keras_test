@@ -53,11 +53,12 @@ for i in range(0, len(text) - maxlen*2 -1, step):
     f_sentences.append(text[i: i + maxlen])
     r_sentences.append(text[i + maxlen+1: i + maxlen+1+maxlen][::-1]) #逆順の文字列
     next_chars.append(text[i + maxlen])
-print('nb sequences:', len(sentences))
+print('nb sequences:', len(f_sentences))
 
 print('Vectorization...')
-X = np.zeros((len(sentences), maxlen, len(chars)), dtype=np.bool)
-y = np.zeros((len(sentences), len(chars)), dtype=np.bool)
+f_X = np.zeros((len(f_sentences), maxlen, len(chars)), dtype=np.bool)
+r_X = np.zeros((len(r_sentences), maxlen, len(chars)), dtype=np.bool)
+y = np.zeros((len(f_sentences), len(chars)), dtype=np.bool)
 for i, f_sentence in enumerate(f_sentences):
     for t, char in enumerate(f_sentence):
         f_X[i, t, char_indices[char]] = 1
@@ -126,8 +127,8 @@ for iteration in range(1):
         generated = ''
         f_sent = text[start_index: start_index + maxlen]
         r_sent = text[start_index + maxlen+1 : start_index + maxlen+1 +maxlen][::-1]  #逆順の文字列
-        generated += sentence
-        print('----- Generating with seed: "' + sentence + '"')
+        generated += f_sent
+        print('----- Generating with seed: "' + f_sent + '"')
         sys.stdout.write(generated)
         
         flag=0
@@ -145,10 +146,13 @@ for iteration in range(1):
             next_index = sample(preds, diversity)
             next_char = indices_char[next_index]
             generated += next_char
-            sentence = sentence[1:] + next_char
+            f_sent = f_sent[1:] + next_char
+            #この方法ではr_sentが出せない
+            #実際は固定されたテストデータだろうからこのプログラムのようなことは起きないけれども
+
             
-            print('\nafter_sampling\n')
+            print('\nafter_sampling\n↓')
             sys.stdout.write(next_char)
             sys.stdout.flush()
+            print('\n↑')
         print()
-        print('generated_word: ',generated_word,'\n')
