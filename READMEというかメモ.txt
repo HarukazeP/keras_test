@@ -11,3 +11,6 @@ filename2=filename+today_str+".txt"
 みたいな
 
 
+モデルの可視化
+from keras.utils.vis_utils import plot_model
+plot_model(model, to_file='model_char_word.png')
