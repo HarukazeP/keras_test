@@ -13,12 +13,14 @@ has at least ~100k characters. ~1M is better.
 '''
 
 from __future__ import print_function
-from keras.models import Sequential
-from keras.layers import Dense, Activation
+from keras.models import Sequential, Model
+from keras.layers import Dense, Activation, Input
 from keras.layers import LSTM
 from keras.layers import add
 from keras.optimizers import RMSprop
 from keras.utils.data_utils import get_file
+from keras.utils.vis_utils import plot_model
+import keras
 import numpy as np
 import re
 import random
@@ -68,14 +70,29 @@ for i, r_sentence in enumerate(r_sentences): #ここもう少しうまい書き�
     for t, char in enumerate(r_sentence):
         r_X[i, t, char_indices[char]] = 1
 
-input_X=[f_X, r_X]
+#input_X=[f_X, r_X]
 # build the model: a single LSTM
 print('Build model...')
+#model = Sequential()
+#model.add(LSTM(128, input_shape=(maxlen, len(chars))))
+#model=add([f_X, r_X])
+#model.add(Dense(len(chars)))
+#model.add(Activation('softmax'))
+
+#ここ編集途中。InputとかModelとか使うことになりそう
+forward_model = Sequential()
+forward_model.add(LSTM(128, input_shape=(maxlen, len(chars))))
+reverse_model = Sequential()
+reverse_model.add(LSTM(128, input_shape=(maxlen, len(chars))))
+
+merged = Merge([forward_model, reverse_model], mode='sum')
+
 model = Sequential()
-model.add(LSTM(128, input_shape=(maxlen, len(chars))))
-model.add(input_X)
+model.add(merged)
 model.add(Dense(len(chars)))
 model.add(Activation('softmax'))
+
+
 
 optimizer = RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
@@ -151,3 +168,4 @@ for iteration in range(1):
             sys.stdout.flush()
             print('\n↑')
         print()
+plot_model(model, to_file='model_char_merge.png')
