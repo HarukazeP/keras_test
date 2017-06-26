@@ -70,16 +70,20 @@ for i, r_sentence in enumerate(r_sentences): #ここもう少しうまい書き�
     for t, char in enumerate(r_sentence):
         r_X[i, t, char_indices[char]] = 1
 
-#input_X=[f_X, r_X]
+
 # build the model: a single LSTM
+# ここ参考にした
+# https://stackoverflow.com/questions/43196636/how-to-concatenate-two-layers-in-keras
+# https://stackoverflow.com/questions/44042173/concatenate-merge-layer-keras-with-tensorflow
 print('Build model...')
+'''
 #model = Sequential()
 #model.add(LSTM(128, input_shape=(maxlen, len(chars))))
 #model=add([f_X, r_X])
 #model.add(Dense(len(chars)))
 #model.add(Activation('softmax'))
 
-#ここ編集途中。InputとかModelとか使うことになりそう
+
 forward_model = Sequential()
 forward_model.add(LSTM(128, input_shape=(maxlen, len(chars))))
 reverse_model = Sequential()
@@ -92,7 +96,18 @@ model.add(merged)
 model.add(Dense(len(chars)))
 model.add(Activation('softmax'))
 
+'''
+f_input=Input(shape=(maxlen, len(chars)))
+f_layer=LSTM(128,)(f_input)
 
+r_input=Input(shape=(maxlen, len(chars)))
+r_layer=LSTM(128,)(r_input)
+
+merged_layer=Add()([f_layer.output, f_layer.output])
+
+out_layer=Dense(len(chars),activation='softmax')(merged_layer)
+
+model=Model([f_layer.input, r_layer.input], out_layer)
 
 optimizer = RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
