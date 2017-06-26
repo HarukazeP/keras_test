@@ -13,13 +13,14 @@ has at least ~100k characters. ~1M is better.
 '''
 
 from __future__ import print_function
-from keras.models import Sequential
-from keras.layers import Dense, Activation
+from keras.models import Sequential, Model
+from keras.layers import Dense, Activation, Input
 from keras.layers import LSTM
-from keras.layers import Merge
+from keras.layers import add
 from keras.optimizers import RMSprop
 from keras.utils.data_utils import get_file
 from keras.utils.vis_utils import plot_model
+import keras
 import numpy as np
 import re
 import random
@@ -69,19 +70,24 @@ for i, r_sentence in enumerate(r_sentences): #ここもう少しうまい書き�
     for t, char in enumerate(r_sentence):
         r_X[i, t, char_indices[char]] = 1
 
+
 # build the model: a single LSTM
+# ここ参考にした
+# https://stackoverflow.com/questions/43196636/how-to-concatenate-two-layers-in-keras
+# https://stackoverflow.com/questions/44042173/concatenate-merge-layer-keras-with-tensorflow
 print('Build model...')
-forward_model = Sequential()
-forward_model.add(LSTM(128, input_shape=(maxlen, len(chars))))
-reverse_model = Sequential()
-reverse_model.add(LSTM(128, input_shape=(maxlen, len(chars))))
 
-merged = Merge([forward_model, reverse_model], mode='sum')
+f_input=Input(shape=(maxlen, len(chars)))
+f_layer=LSTM(128,)(f_input)
 
-model = Sequential()
-model.add(merged)
-model.add(Dense(len(chars)))
-model.add(Activation('softmax'))
+r_input=Input(shape=(maxlen, len(chars)))
+r_layer=LSTM(128,)(r_input)
+
+merged_layer=add([f_layer, r_layer])
+
+out_layer=Dense(len(chars),activation='softmax')(merged_layer)
+
+model=Model([f_input, r_input], out_layer)
 
 optimizer = RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
@@ -157,4 +163,4 @@ for iteration in range(1):
             sys.stdout.flush()
             print('\n↑')
         print()
-plot_model(model, to_file='model_char_merge_old.png')
+plot_model(model, to_file='./model_image/model_char_merge_new.png')
