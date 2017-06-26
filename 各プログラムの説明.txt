@@ -19,5 +19,5 @@ char_word_test.py     文字ベースで単語を予測する.前処理(a～z)
 
 char_merge_old_test.py    文字ベースで順方向と逆方向でマージ．Merge機能を用いているもの．このMergeは2017/8以降使えなくなるらしい
 
-char_merge_test.py    Mergeから新しいmergeに変更したもの
-word_merge_test.py    その単語ver
+char_merge_new_test.py    MergeからfunctionAPIを用いた新しいverに変えたもの
+word_merge_new_test.py    その単語ver
