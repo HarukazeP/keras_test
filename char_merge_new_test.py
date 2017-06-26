@@ -139,7 +139,7 @@ for iteration in range(1):
     print('Iteration', iteration)
     today=datetime.datetime.today()
     print('date = ',today)
-    model.fit(input_X, y, 
+    model.fit([f_X, r_X], y, 
               batch_size=128,
               epochs=1)
 
