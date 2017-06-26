@@ -16,7 +16,7 @@ from __future__ import print_function
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Input
 from keras.layers import LSTM
-from keras.layers import add
+from keras.layers import Add
 from keras.optimizers import RMSprop
 from keras.utils.data_utils import get_file
 from keras.utils.vis_utils import plot_model
