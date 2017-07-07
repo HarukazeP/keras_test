@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#http://tatzyr.hatenablog.com/entry/2015/10/24/162102 
+#このサイトにあったものだが今は記事消えてる
+
  
 import logging
 import os.path
