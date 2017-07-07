@@ -53,18 +53,18 @@ for i in range(0, len(text_list) - maxlen_words*2 -1, step):
     f_sentences.append(text_list[i: i + maxlen_words])
     r_sentences.append(text_list[i + maxlen_words+1: i + maxlen_words+1+maxlen_words][::-1]) #逆順のリスト
     next_words.append(text_list[i + maxlen_words])
-print('nb sequences:', len(sentences))
+print('nb sequences:', len(f_sentences))
 
 print('Vectorization...')
-f_X = np.zeros((len(sentences), maxlen_words, len(words)), dtype=np.bool)
-r_X = np.zeros((len(sentences), maxlen_words, len(words)), dtype=np.bool)
-y = np.zeros((len(sentences), len(words)), dtype=np.bool)
-for i, sentence in enumerate(sentences):
+f_X = np.zeros((len(f_sentences), maxlen_words, len(words)), dtype=np.bool)
+r_X = np.zeros((len(r_sentences), maxlen_words, len(words)), dtype=np.bool)
+y = np.zeros((len(f_sentences), len(words)), dtype=np.bool)
+for i, sentence in enumerate(f_sentences):
     for t, word in enumerate(sentence):
         f_X[i, t, word_indices[word]] = 1
     y[i, word_indices[next_words[i]]] = 1
 
-for i, sentence in enumerate(sentences):
+for i, sentence in enumerate(r_sentences):
     for t, word in enumerate(sentence):
         r_X[i, t, word_indices[word]] = 1
 
@@ -78,7 +78,7 @@ r_layer=LSTM(128,)(r_input)
 
 merged_layer=add([f_layer, r_layer])
 
-out_layer=Dense(len(chars),activation='softmax')(merged_layer)
+out_layer=Dense(len(words),activation='softmax')(merged_layer)
 
 model=Model([f_input, r_input], out_layer)
 
@@ -114,7 +114,7 @@ for iteration in range(1):
     print('Iteration', iteration)
     today=datetime.datetime.today()
     print('date = ',today)
-    model.fit(X, y,
+    model.fit([f_X,r_X], y,
               batch_size=128,
               epochs=1)
 
@@ -129,7 +129,7 @@ for iteration in range(1):
         f_sent_list = text_list[start_index: start_index + maxlen_words]
         r_sent_list = text_list[start_index + maxlen_words+1 : start_index + maxlen_words+1 +maxlen_words][::-1]
         
-        sent_str = ' '.join(sent_list)
+        sent_str = ' '.join(f_sent_list)
         generated += sent_str
         print('----- Generating with seed: "' + sent_str + '"')
         sys.stdout.write(generated)
@@ -137,10 +137,10 @@ for iteration in range(1):
         for i in range(1):
             f_x = np.zeros((1, maxlen_words, len(words)))
             r_x = np.zeros((1, maxlen_words, len(words)))
-            for t, word in enumerate(sent_list):
+            for t, word in enumerate(f_sent_list):
                 f_x[0, t, word_indices[word]] = 1.
                
-            for t, word in enumerate(sent_list):
+            for t, word in enumerate(r_sent_list):
                 r_x[0, t, word_indices[word]] = 1.
 
             preds = model.predict([f_x,r_x], verbose=0)[0]
@@ -152,7 +152,7 @@ for iteration in range(1):
             generated = generated + ' ' + next_word
             tmp =[]
             tmp.append(next_word)
-            sent_list = sent_list[1:] + tmp
+            f_sent_list = f_sent_list[1:] + tmp
             
             print('\nafter_sampling\n↓')
             sys.stdout.write(next_word)
