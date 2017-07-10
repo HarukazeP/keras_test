@@ -116,7 +116,12 @@ model.fit([f_X,r_X], y,
               epochs=1)
 today=datetime.datetime.today()
 print('fit_end = ',today)
-model.save('word_merge_epoch1.h5')
+
+#モデルの保存
+model_json_str = model.to_json()
+open('word_merge_epoch1_model.json', 'w').write(model_json_str)
+model.save_weights('word_merge_epoch1_weight.h5')
+
 today=datetime.datetime.today()
 print('all_end = ',today)
 
