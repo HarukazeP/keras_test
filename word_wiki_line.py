@@ -32,7 +32,7 @@ print('all_start = ',today)
 
 #辞書のロード，作成
 #その他を表す単語も作成しておく
-path = './corpus/wiki_words.txt'
+path = './corpus/wiki_words_test.txt'
 file_words = open(path).read()
 words=sorted(file_words.split(" "))
 words.append("#OTHER")
@@ -84,7 +84,7 @@ def sample(preds, temperature=1.0):
     return np.argmax(probas)
 
 #wiki読み込み，ここファイルサイズ大きいので学習も1行ずつ行うように変更
-wiki = './corpus/WikiSentWithEndMark1.txt'
+wiki = './corpus/miniWiki.txt'
 
 with open(wiki,'r') as f:
     for line in f:
