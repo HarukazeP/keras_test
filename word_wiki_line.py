@@ -95,39 +95,39 @@ with open(wiki,'r') as f:
             today=datetime.datetime.today()
             print(' ',today)
         wiki_line+=1
-		line=line.lower()
-		line = line.replace("\n", " ")
-		line = re.sub(r"[^a-z ]", "", line)
-		line = re.sub(r"[ ]+", " ", line)
-		text_list=line.split(" ")
+        line=line.lower()
+        line = line.replace("\n", " ")
+        line = re.sub(r"[^a-z ]", "", line)
+        line = re.sub(r"[ ]+", " ", line)
+        text_list=line.split(" ")
 
-		# cut the text in semi-redundant sequences of maxlen_words characters
-		f_sentences = []
-		r_sentences = []
-		next_words = []
+        # cut the text in semi-redundant sequences of maxlen_words characters
+        f_sentences = []
+        r_sentences = []
+        next_words = []
 
-		for i in range(0, len(text_list) - maxlen_words*2 -1, step):
-		    f_sentences.append(text_list[i: i + maxlen_words])
-		    r_sentences.append(text_list[i + maxlen_words+1: i + maxlen_words+1+maxlen_words][::-1]) #逆順のリスト
-		    next_words.append(text_list[i + maxlen_words])
+        for i in range(0, len(text_list) - maxlen_words*2 -1, step):
+            f_sentences.append(text_list[i: i + maxlen_words])
+            r_sentences.append(text_list[i + maxlen_words+1: i + maxlen_words+1+maxlen_words][::-1]) #逆順のリスト
+            next_words.append(text_list[i + maxlen_words])
 
-		len_sentences=len(f_sentences)
-		print('nb sequences:', len_sentences)
+        len_sentences=len(f_sentences)
+        print('nb sequences:', len_sentences)
 
-		print('Vectorization...')
-		f_X = np.zeros((len_sentences, maxlen_words, len_words), dtype=np.bool)
-		r_X = np.zeros((len_sentences, maxlen_words, len_words), dtype=np.bool)
-		y = np.zeros((len_sentences, len_words), dtype=np.bool)
-		for i, sentence in enumerate(f_sentences):
-		    for t, word in enumerate(sentence):
-		        f_X[i, t, word_indices[word]] = 1
-		    y[i, word_indices[next_words[i]]] = 1
+        print('Vectorization...')
+        f_X = np.zeros((len_sentences, maxlen_words, len_words), dtype=np.bool)
+        r_X = np.zeros((len_sentences, maxlen_words, len_words), dtype=np.bool)
+        y = np.zeros((len_sentences, len_words), dtype=np.bool)
+        for i, sentence in enumerate(f_sentences):
+            for t, word in enumerate(sentence):
+                f_X[i, t, word_indices[word]] = 1
+            y[i, word_indices[next_words[i]]] = 1
 
-		for i, sentence in enumerate(r_sentences):
-		    for t, word in enumerate(sentence):
-		        r_X[i, t, word_indices[word]] = 1
+        for i, sentence in enumerate(r_sentences):
+            for t, word in enumerate(sentence):
+                r_X[i, t, word_indices[word]] = 1
 
-		model.fit([f_X,r_X], y, batch_size=128, epochs=1)
+        model.fit([f_X,r_X], y, batch_size=128, epochs=1)
 
 #モデルの保存
 model_json_str = model.to_json()
