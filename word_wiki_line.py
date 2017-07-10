@@ -131,8 +131,10 @@ with open(wiki,'r') as f:
 
 #モデルの保存
 model_json_str = model.to_json()
-open('word_merge_wiki_line.json', 'w').write(model_json_str)
-model.save_weights('word_merge_wiki_line.h5')
+today_str = today.strftime("%Y_%m_%d_%H_%M_%S")
+filename='word_merge_wiki_line'+today_str
+open(filename, 'w').write(model_json_str)
+model.save_weightsfilename)
 
 today=datetime.datetime.today()
 print('all_end = ',today)
