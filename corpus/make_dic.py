@@ -16,6 +16,8 @@ i=0
 with open(path,'r') as f:
     for line in f:
         i+=1
+        if(i<20):
+            print('line:', i)       
         if(i%10000==0):
             print('line:', i)
         line=line.lower()
