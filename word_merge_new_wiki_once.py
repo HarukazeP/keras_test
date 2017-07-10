@@ -27,12 +27,15 @@ import random
 import sys
 import datetime
 
+today=datetime.datetime.today()
+print('all_start = ',today)
 path = './corpus/WikiSentWithEndMark1.txt'
 text = open(path).read().lower()
 text = text.replace("\n", " ")
 text = re.sub(r"[^a-z ]", "", text)
 text = re.sub(r"[ ]+", " ", text)
-
+today=datetime.datetime.today()
+print('read_end = ',today)
 
 text_list=text.split(" ")
 print('todal words:', len(text_list))
@@ -107,12 +110,13 @@ def sample(preds, temperature=1.0):
 
 # train the model, output generated text after each iteration
 today=datetime.datetime.today()
-print('start_date = ',today)
+print('fit_start = ',today)
 model.fit([f_X,r_X], y,
               batch_size=128,
               epochs=1)
 today=datetime.datetime.today()
-print('end_date = ',today)
+print('fit_end = ',today)
 model.save('word_merge_epoch1.h5')
-
+today=datetime.datetime.today()
+print('all_end = ',today)
 
