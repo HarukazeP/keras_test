@@ -125,12 +125,9 @@ print('fit_end = ',today)
 #モデルの保存
 model_json_str = model.to_json()
 today_str = today.strftime("%Y_%m_%d_%H_%M_%S")
-filename='word_merge_wiki_line_tmp8'+today_str
+filename='word_merge_wiki_epoch1_tmp8_'+today_str
 open(filename+'.json', 'w').write(model_json_str)
 model.save_weights(filename+'.h5')
-
-open('word_merge_epoch1_model.json', 'w').write(model_json_str)
-model.save_weights('word_merge_epoch1_weight.h5')
 
 today=datetime.datetime.today()
 print('all_end = ',today)
