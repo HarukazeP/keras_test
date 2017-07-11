@@ -54,7 +54,7 @@ for line in all_lines:
         r_tmp = re.sub(r"[ ]+", " ", r_tmp)            
         f_line=f_tmp.split(" ")
         r_line=r_tmp.split(" ")
-        if (len(f_line)>th_len) and (len(r_line)>th_len):
+        if (len(f_line)>=th_len) and (len(r_line)>=th_len):
             if (len(f_line)>maxlen_words):
                 f_line=f_line[-1*maxlen_words:]
             if (len(r_line)>maxlen_words):
@@ -86,8 +86,8 @@ print('dict_end = ',today)
 
 #モデルをロード
 print('Load model...')
-model_file='word_merge_wiki_epoch1_tmp8_2017_07_11_14_11_55.json'
-weight_file='word_merge_wiki_epoch1_tmp8_2017_07_11_14_11_55.h5'
+model_file ='word_merge_wiki_epoch1_tmp8_2017_07_11_18_13_16.json'
+weight_file='word_merge_wiki_epoch1_tmp8_2017_07_11_18_13_16.h5'
 
 json_string = open(model_file).read()
 model = model_from_json(json_string)
@@ -129,18 +129,21 @@ def search_word_indices(word):
 print('Test starts ...')
 today=datetime.datetime.today()
 print('date = ',today)
+today_str = today.strftime("%Y_%m_%d_%H_%M_%S")
+filename='test_goudouzemi_'+today_str
+
 for i in range(sents_num):
     f_x = np.zeros((1, maxlen_words, len_words))
     r_x = np.zeros((1, maxlen_words, len_words))
     for t, word in enumerate(f_sentences[i]):
-        f_x[0, t, search_word_indices(word)] = 1.
+        if(len(f_sentences[i])<maxlen_words):
+            f_x[0, t+maxlen_words-len(f_sentences[i]), search_word_indices(word)] = 1.
+        else:
+            f_x[0, t, search_word_indices(word)] = 1.
     for t, word in enumerate(r_sentences[i]):
         r_x[0, t, search_word_indices(word)] = 1.
     preds = model.predict([f_x,r_x], verbose=0)[0]
-    #print('\n\nbefore_sampling\n')
-    today=datetime.datetime.today()
-    today_str = today.strftime("%Y_%m_%d_%H_%M_%S")
-    filename='test_goudouzemi_'+today_str
+    
     print_rank(preds, 'rank_'+filename+'.txt')
     next_index = sample(preds)
     next_word = indices_word[next_index]
