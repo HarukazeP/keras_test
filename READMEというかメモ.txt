@@ -10,6 +10,9 @@ today_str = today.strftime("%Y_%m_%d_%H_%M_%S")
 filename2=filename+today_str+".txt" 
 みたいな
 
+cygwin/home/download
+にサーバから結果ダウンロードしてある
+
 
 モデルの可視化
 from keras.utils.vis_utils import plot_model
