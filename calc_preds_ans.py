@@ -31,7 +31,7 @@ for i in range(10):
                             ng_num+=1
 print('ok: ',ok_num)
 print('ng: ',ng_num)
-print('per:',1.0*ok_num/ng_num)
+print('per:',1.0*ok_num/(ng_num+ok_num))
 
     
 today=datetime.datetime.today()
