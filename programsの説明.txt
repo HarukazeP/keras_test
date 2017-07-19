@@ -61,6 +61,62 @@ char_merge_new_test.py　の単語ベースver
 
 
 
+word_merge_new_wiki_once.py　
+※不完全なプログラム
+word_merge_new_test.py　の学習データをwikiに変えたもの．iterationループをなくした
+モデルを保存する機能追加
+これではデータが大きすぎて(約6.3GB)動かなかった
+
+
+word_miniWiki.py
+word_merge_new_wiki_once.py　から学習データ変えただけ
+学習データn行おきに1行抽出して約1.5MBに
+
+
+word_wiki_line.py
+※不完全なプログラム
+word_miniWiki.py　から学習データが大きい場合に備えて1行ずつ学習していく
+AttributeError:'Progbar Logger' object has no attribute 'log_values'　みたいなエラーが出てうごかない
+
+
+word_wiki_not_line.py
+word_miniWiki.py　から辞書にその他を表す#OTHERを追加
+出力ファイル名に日付を付与
+
+
+word_save_model_goudouzemi2.py
+合同ゼミ用
+word_wiki_not_line.py　から出力とか微妙に変更
+
+
+word_load_model_goudouzemi2.py
+合同ゼミ用
+保存してあるモデルを使用して予測
+これは実行にそんなに時間かからない
+
+
+calc_rank_ans.py
+合同ゼミ実験1用
+word_load_model_goudouzemi2.py　が出力したファイルや正解データから正解率を計算
+
+
+calc_preds_ans.py
+合同ゼミ実験2用
+word_load_model_goudouzemi2.py　が出力したファイルや正解データから正解率を計算
+
+
+calc_preds_to_rank.py
+合同ゼミ実験2用
+word_load_model_goudouzemi2.py　が出力したファイルや正解データから予測の確率順位を出力
+
+
+
+
+
+
+
+
+
 -----2017_from08to11ディレクトリ内----------------------------------------
 
 
