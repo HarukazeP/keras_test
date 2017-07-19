@@ -1,21 +1,33 @@
-あぷろだ代わり
-
 keras使ってRNNの勉強というか練習する過程のいろいろ
+研究用あぷろだ代わりのリポジトリ
 
-python ○○.py 2>&1 | tee ○○○.txt
+-------------------------------------------------
+各ディレクトリの説明
 
-today=datetime.datetime.today()
-today_str = today.strftime("%Y_%m_%d_%H_%M_%S")
+corpus
+実験に使うコーパスやテストデータおよびその正解データ
+学習データはサイズの都合上おいてないこともある
+「corpusの説明.txt」にcorpusディレクトリ内の各ファイルの説明を記載してある
 
-filename2=filename+today_str+".txt" 
-みたいな
+log
+プログラムの出力を記録したファイル
+python ○○.py 2>&1 | tee ○○○.txt　で作成
+一時的な確認用なので全てのプログラムのログをおいているわけではない
 
-cygwin/home/download
-にサーバから結果ダウンロードしてある
+
+model_image
+各プログラムのニューラルネットワークモデルの構造
+plot_model(model, to_file='./model_image/model_word_merge_new.png')　で生成
 
 
-モデルの可視化
-from keras.utils.vis_utils import plot_model
-plot_model(model, to_file='model_char_word.png')
+programs
+各プログラム
+基本的にpython
+作成時期や用途でさらにディレクトリ分けてある
+「programsの説明.txt」にprogramsディレクトリ内の各ファイルの説明を記載してある
 
-https://pondad.net/ai/2016/12/25/keras-mnist.html
+
+
+------------------------------------------------
+その他雑記
+
