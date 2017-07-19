@@ -18,6 +18,7 @@ model_image
 各プログラムのニューラルネットワークモデルの構造
 画像○○○.pngとプログラム○○○.pyが対応してある
 plot_model(model, to_file='./model_image/model_word_merge_new.png')　で生成
+全てのプログラムの画像おいているわけではない
 
 
 programs
