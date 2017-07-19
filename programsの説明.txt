@@ -17,3 +17,63 @@
 
 
 -----2017_from04to07ディレクトリ内----------------------------------------
+
+original.py
+kerasのチュートリアルプログラムlstm_text_generation.py　そのまま
+https://github.com/fchollet/keras/tree/master/examples　より
+
+
+original_time.py
+original.py　に時間表示を追加
+
+
+-------これより下「char」で始まるものは文字ベースで予測するモデル．「word」で始まるものは単語ベースで予測するモデル
+-------「test」がつくものはチュートリアルと同じ学習・テストデータ
+
+sampling_test.py
+original_time.py　に簡単な前処理追加（改行をスペースに，スペースの連続を消す），繰り返し回数減らして軽量化
+サンプリングが何をやっているのか確認用
+
+
+char_sampling2_test.py
+サンプリングで複数出力できるように変更，学習データも減らして軽量化
+
+
+word_test.py
+文字ベースから単語ベースへ．さらに前処理を追加．（a～zのみに）
+文字ベース時の変数sentenceと単語ベース時の変数sentenceは型が違うことに注意
+
+
+char_word_test.py
+char_sampling2_test.py　に前処理を追加．（a～zのみに）
+文字べースで予測し，スペースが出るまでを1単語として出力
+
+
+char_merge_old_test.py
+順方向と逆方向から予測してマージする．
+Mergeメソッドを用いているが，このMergeは2017/8以降使えなくなるらしい
+
+
+char_merge_new_test.py
+char_merge_old_test.py　をMergeからfunctionAPIを用いた方法に変えたもの
+
+
+word_merge_new_test.py
+char_merge_new_test.py　の単語ベースver
+
+
+
+-----2017_from08to11ディレクトリ内----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
