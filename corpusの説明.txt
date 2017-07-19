@@ -1,1 +1,20 @@
-あ
+
+miniWiki_tmp8.txt
+WikiSentWithEndMark1.txt(約5.8GB)では大きすぎたためこれからn行おきに1行ずつ抽出し，約1.5MBまで減らしたもの
+
+
+mini_center_goudouzemi.txt
+2000-2016年度に行われたセンター試験本試験大問2Aのうち選択肢が全て1単語の問題
+<>が空所を表す
+
+
+ans_testdata_goudouzemi2.txt
+合同ゼミ用
+mini_center_goudouzemi.txt　のうち空所の前後に5語以上あるもの
+<>内が正答
+
+
+choices_testdata_goudouzemi2.txt
+合同ゼミ用
+ans_testdata_goudouzemi2.txt　の<>内が選択肢ver
+
