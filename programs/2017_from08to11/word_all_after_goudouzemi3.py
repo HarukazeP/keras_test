@@ -397,25 +397,14 @@ sent_i=0
 sampOK=0
 rankOK=0
 choiOK=0
-print('len_p',len(preds_list))
-print('\n')
-print('len_a',len(preds_list))
-print('\n')
+
 with open(today_str+'_rank.txt',"r") as rank:
     for line in rank:
         rank_line=line.lower().replace('\n','').replace('\r','')
         rank_list=rank_line.split(' ### ')
-        print('i=',sent_i)
-        print('\n')
-        print(preds_list[sent_i])
-        print(ans_list[sent_i])
-        print(ch_list[sent_i])
-
-        '''
         sampOK+=calc_samp1word(preds_list[sent_i], ans_list[sent_i], rank_list)
         rankOK+=calc_rank1word(preds_list[sent_i], ans_list[sent_i], rank_list)
         choiOK+=calc_rank4choices(ch_list[sent_i], ans_list[sent_i], rank_list)
-        '''
         sent_i+=1
 
 samp_acc=1.0*sampOK/sent_i
