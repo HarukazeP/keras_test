@@ -119,8 +119,8 @@ word_all_after_goudouzemi.py
 正解付きテストデータと選択肢つきテストデータを読み込む
 
 
-
-
+word_embedding.py
+word_all_after_goudouzemi.py　にembeddingを追加
 
 
 
