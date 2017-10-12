@@ -434,5 +434,7 @@ print(result)
 end_time=datetime.datetime.today()
 print('all_end = ',end_time)
 
+plot_model(model, to_file=today_str+'model.png', show_shapes=True)
+
 diff_time=end_time-start_time
 print('total =',diff_time)
