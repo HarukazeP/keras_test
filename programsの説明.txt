@@ -119,8 +119,13 @@ word_all_after_goudouzemi.py
 正解付きテストデータと選択肢つきテストデータを読み込む
 
 
+word_onehot.py
+word_all_after_goudouzemi.py　とほど同じ
+学習回数(epoch)などを変更して実験する
+
 word_embedding.py
-word_all_after_goudouzemi.py　にembeddingを追加
+word_onehot.py　からベクトル化をonehotではなくembedding用いたものへ変更
+文字列→単語id+1→embeddingの流れ
 
 
 
