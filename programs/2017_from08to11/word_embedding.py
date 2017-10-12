@@ -123,14 +123,14 @@ for i, sentence in enumerate(r_sentences):
 
 # モデルの構築
 print('Build model...')
-f_input=Input(shape=(maxlen_words, len_words))
-f_emb=Embedding(output_dim=512, input_dim=len_words+1, input_length=maxlen_words)(f_input)
+f_input=Input(shape=(maxlen_words,))
+f_emb=Embedding(output_dim=512, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True)(f_input)
 
-f_layer=LSTM(128,)(f_emb)
+f_layer=LSTM(128)(f_emb)
 
-r_input=Input(shape=(maxlen_words, len_words))
-r_emb=Embedding(output_dim=512, input_dim=len_words+1, input_length=maxlen_words)(r_input)
-r_layer=LSTM(128,)(r_emb)
+r_input=Input(shape=(maxlen_words,))
+r_emb=Embedding(output_dim=512, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True)(r_input)
+r_layer=LSTM(128)(r_emb)
 
 merged_layer=add([f_layer, r_layer])
 
@@ -434,11 +434,10 @@ with open(today_str+'_result.txt', 'a') as rslt:
 print(result)
 
 
-
-
-
 end_time=datetime.datetime.today()
 print('all_end = ',end_time)
+
+plot_model(model, to_file=today_str+'model.png', show_shapes=True)
 
 diff_time=end_time-start_time
 print('total =',diff_time)
