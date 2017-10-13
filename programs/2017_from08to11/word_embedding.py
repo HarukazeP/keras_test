@@ -36,6 +36,8 @@ today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
 my_epoch=1
 
+today_str=today_str+'_epoch'+str(my_epoch)
+
 #読み込むもの
 train_path = './nietzsche.txt'     #学習データ
 test_path = './tmp_testdata_after.txt'     #答えつきテストデータ
