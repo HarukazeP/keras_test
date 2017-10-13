@@ -34,6 +34,8 @@ start_time=datetime.datetime.today()
 print('all_start = ',start_time)
 today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
+my_epoch=1
+
 #読み込むもの
 train_path = './nietzsche.txt'     #学習データ
 test_path = './tmp_testdata_after.txt'     #答えつきテストデータ
@@ -158,7 +160,7 @@ def sample(preds, temperature=1.0):
 
 # モデルの学習
 print('Training model...')
-model.fit([f_X,r_X], y, batch_size=128, epochs=1)
+model.fit([f_X,r_X], y, batch_size=128, epochs=my_epoch)
 print_time('fit end')
 
 
