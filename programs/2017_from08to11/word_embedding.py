@@ -432,16 +432,18 @@ choi_result='samp: '+str(choi_acc)+' ( OK: '+str(choiOK)+'   NG: '+str(choiNG)+'
 
 result=samp_result+rank_result+choi_result
 
+end_time=datetime.datetime.today()
+diff_time=end_time-start_time
+
 with open(today_str+'_result.txt', 'a') as rslt:
-    rslt.write(result)
+    rslt.write(result+'\ntotal time ='+str(diff_time))
 
 print(result)
 
 
-end_time=datetime.datetime.today()
+
 print('all_end = ',end_time)
 
 plot_model(model, to_file=today_str+'model.png', show_shapes=True)
 
-diff_time=end_time-start_time
 print('total =',diff_time)
