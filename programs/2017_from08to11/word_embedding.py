@@ -427,7 +427,7 @@ choiNG=sent_i - choiOK
 
 samp_result='samp: '+str(samp_acc)+' ( OK: '+str(sampOK)+'   NG: '+str(sampNG)+' )\n'
 rank_result='rank: '+str(rank_acc)+' ( OK: '+str(rankOK)+'   NG: '+str(rankNG)+' )\n'
-choi_result='samp: '+str(choi_acc)+' ( OK: '+str(choiOK)+'   NG: '+str(choiNG)+' )\n'
+choi_result='choi: '+str(choi_acc)+' ( OK: '+str(choiOK)+'   NG: '+str(choiNG)+' )\n'
 
 
 result=samp_result+rank_result+choi_result
