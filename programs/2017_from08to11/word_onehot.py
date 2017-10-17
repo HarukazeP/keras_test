@@ -218,10 +218,10 @@ for line in all_lines:
             #テスト対象のデータの答えと選択肢をリストに格納
             #tmp_ans=ans_lines[line_num]
             tmp_ans=all_lines[line_num]
-            tmp_ans=tmp_ans[tmp_ans.find('<')+1:tmp_ans.find('>')-1]
+            tmp_ans=tmp_ans[tmp_ans.find('<')+1:tmp_ans.find('>')]
             ans_list.append(tmp_ans)
             tmp_ch=ch_lines[line_num]
-            tmp_ch=tmp_ch[tmp_ch.find('<')+1:tmp_ch.find('>')-1]
+            tmp_ch=tmp_ch[tmp_ch.find('<')+1:tmp_ch.find('>')]
             ch_list.append(tmp_ch)
             #テスト対象となるデータのみを出力
             with open(today_str+'_testdata.txt', 'a') as data:
