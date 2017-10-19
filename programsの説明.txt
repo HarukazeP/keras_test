@@ -4,11 +4,6 @@ FilePro5.java　と　WikiSentCheck.java
 以前に作成したもの．wp2txtで得たWikipediaの記事データを整形するやつ
 
 
-make_dic.py
-単語一覧をファイル出力する
-学習データのコーパスが大きいとき，1行ずつ読み込む必要があるが，単語のid辞書は先に作成する必要があったため
-
-
 process_wiki.py
 Wikipediaの記事コーパスを作成
 http://tatzyr.hatenablog.com/entry/2015/10/24/162102　このサイトにあったものだが今は記事消えてる
@@ -126,6 +121,8 @@ word_all_after_goudouzemi.py　とほど同じ
 word_embedding.py
 word_onehot.py　からベクトル化をonehotではなくembedding用いたものへ変更
 文字列→単語id+1→embeddingの流れ
+embeddingはデフォルトのものを使用しておりword2vecなどは使っていない
+embeddingも同時に学習していく
 
 
 
