@@ -1,3 +1,7 @@
+nietzsche.txt
+kerasのチュートリアルで使用されているコーパス
+ニーチェの作品らしい
+
 
 miniWiki_tmp8.txt
 WikiSentWithEndMark1.txt(約5.8GB)では大きすぎたためこれからn行おきに1行ずつ抽出し，約1.5MBまで減らしたもの
@@ -17,4 +21,20 @@ mini_center_goudouzemi.txt　のうち空所の前後に5語以上あるもの
 choices_testdata_goudouzemi2.txt
 合同ゼミ用
 ans_testdata_goudouzemi2.txt　の<>内が選択肢ver
+
+
+tmp_choices_after.txt
+合同ゼミで用いた問題34問
+
+
+tmp_testdata_after.txt
+
+
+---- 以下，プログラム中に記載しているがgitにはアップロードしてないもの ----
+
+
+
+
+
+
 
