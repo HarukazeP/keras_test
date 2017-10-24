@@ -118,6 +118,7 @@ word_onehot.py
 word_all_after_goudouzemi.py　とほど同じ
 学習回数(epoch)などを変更して実験する
 
+
 word_embedding.py
 word_onehot.py　からベクトル化をonehotではなくembedding用いたものへ変更
 文字列→単語id+1→embeddingの流れ
@@ -125,6 +126,11 @@ embeddingはデフォルトのものを使用しておりword2vecなどは使っ
 embeddingも同時に学習していく
 
 
+word_embedding_bigfile.py
+word_embedding.py　を巨大ファイルにも対応させたもの
+まず1行ずつ読み取り辞書の作成
+その後，1000行ずつに学習していくもの
+これ以降のプログラムは全てこの巨大ファイル対応形式で
 
 
 
