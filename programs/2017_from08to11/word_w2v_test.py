@@ -35,12 +35,12 @@ my_epoch=1
 #読み込むもの
 
 train_big='./WikiSentWithEndMark1.txt'   # 約5.8GB，約2000万行
-train_mig='./miniWiki_tmp8.txt'   # 約1.5MB，約5000行
+train_mid='./miniWiki_tmp8.txt'   # 約1.5MB，約5000行
 train_small='./nietzsche.txt'   # 約600KB，約1万行
 
 
 
-train_path = train_small        #学習データ
+train_path = train_mid        #学習データ
 test_path = './tmp_testdata_after.txt'     #答えつきテストデータ
 ch_path= './tmp_choices_after.txt'     #選択肢つきテストデータ
 
@@ -96,7 +96,7 @@ sentences = gensim.models.word2vec.Text8Corpus(train_path)
 詳しくは https://github.com/RaRe-Technologies/gensim/blob/develop/gensim/models/word2vec.py
 '''
 
-w2v_model = gensim.models.word2vec.Word2Vec(sentences, size=vec_size, window=5, workers=4, min_count=5)
+w2v_model = gensim.models.word2vec.Word2Vec(sentences, size=vec_size, window=5, workers=4, min_count=0)
 w2v_model.save(today_str+'_w2v.model')
 
 
@@ -184,26 +184,37 @@ print_time('make dic end')
 # モデルの構築
 maxlen_words = 10
 print('Build model...')
-f_input=Input(shape=(maxlen_words, len_words))
+f_input=Input(shape=(maxlen_words, vec_size))
 f_layer=LSTM(128,)(f_input)
 
-r_input=Input(shape=(maxlen_words, len_words))
+r_input=Input(shape=(maxlen_words, vec_size))
 r_layer=LSTM(128,)(r_input)
 
 merged_layer=add([f_layer, r_layer])
 
 out_layer=Dense(len_words,activation='softmax')(merged_layer)
 
-model=Model([f_input, r_input], out_layer)
+my_model=Model([f_input, r_input], out_layer)
 
 optimizer = RMSprop(lr=0.01)
 my_model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
 
+#word2vecのベクトルを得る
+#未知語の場合には[0,0,0, ... ,0]みたいなやつにとりあえずしてる
+#要改良
+def get_w2v_vec(word):
+    if word in w2v_model.wv.vocab:
+        return w2v_model.wv[word]
+    else:
+        return np.zeros((vec_size),dtype=np.float32)
+
 
 #学習データをベクトル化してモデルを学習
-def model_fit(midtext, model, w2v_model):
+def model_fit(midtext, model):
     midtext = re.sub(r"[ ]+", " ", midtext)
+    if(midtext[0]==' '):
+        midtext=midtext[1:]
     text_list=midtext.split(" ")
     f_sentences = []
     r_sentences = []
@@ -222,12 +233,12 @@ def model_fit(midtext, model, w2v_model):
         y = np.zeros((len_sent, len_words), dtype=np.bool)
         for i, sentence in enumerate(f_sentences):
             for t, word in enumerate(sentence):
-                f_X[i, t] = w2v_model.wv[word]
+                f_X[i, t] = get_w2v_vec(word)
             y[i, word_indices[next_words[i]]] = 1
         
         for i, sentence in enumerate(r_sentences):
             for t, word in enumerate(sentence):
-                r_X[i, t] = w2v_model.wv[word]
+                r_X[i, t] = get_w2v_vec(word)
         # モデルの学習
         model.fit([f_X,r_X], y, batch_size=128, epochs=1)
 
@@ -314,7 +325,6 @@ ch_list=[]
 line_num=0
 
 for line in all_lines:
-    #tmp=line.split("<>")    #ここ要変更，正規表現いけるなら<.+>とか？
     tmp=re.split('<.+>', line)
     if(len(tmp)>1):
         test_f_tmp=re.sub(r"[^a-z ]", "", tmp[0])
@@ -373,20 +383,20 @@ print('Test starts ...')
 preds_list=[]
 
 for i in range(sents_num):
-    test_f_x = np.zeros((1, maxlen_words))
-    test_r_x = np.zeros((1, maxlen_words))
+    test_f_x = np.zeros((1, maxlen_words,vec_size),dtype=np.float32)
+    test_r_x = np.zeros((1, maxlen_words,vec_size),dtype=np.float32)
     for t, word in enumerate(test_f_sentences[i]):
-        tmp_index = search_word_indices(word)+1
+        tmp_vec = get_w2v_vec(word)
         if(len(test_f_sentences[i])<maxlen_words):
-            test_f_x[0, t+maxlen_words-len(test_f_sentences[i])] = tmp_index
+            test_f_x[0, t+maxlen_words-len(test_f_sentences[i])] = tmp_vec
         else:
-            test_f_x[0, t] = tmp_index
+            test_f_x[0, t] = tmp_vec
     for t, word in enumerate(test_r_sentences[i]):
-        tmp_index = search_word_indices(word)+1
+        tmp_vec = get_w2v_vec(word)
         if(len(test_f_sentences[i])<maxlen_words):
-            test_r_x[0, t+maxlen_words-len(test_r_sentences[i])] = tmp_index
+            test_r_x[0, t+maxlen_words-len(test_r_sentences[i])] = tmp_vec
         else:
-            test_r_x[0, t] = tmp_index
+            test_r_x[0, t] = tmp_vec
     preds = my_model.predict([test_f_x,test_r_x], verbose=0)[0]
         
     print_rank(preds, today_str+'_rank.txt')
@@ -553,6 +563,6 @@ print(result)
 
 print('all_end = ',end_time)
 
-#plot_model(my_model, to_file=today_str+'model.png', show_shapes=True)
+plot_model(my_model, to_file=today_str+'model.png', show_shapes=True)
 
 print('total =',diff_time)
