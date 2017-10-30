@@ -7,8 +7,6 @@ word2vecでベクトルにして学習するモデル
 あとでそのような語を確認する必要あり
 あるいはもう少し上手い書き方ない？
 
-word2vecに食わせる前に前処理やってしまう？改行消す奴以外の前処理したファイル作成
-train_path2を作る的な
 '''
 
 from __future__ import print_function
@@ -90,7 +88,19 @@ def print_time(str1):
     print(today)
 
 
+tmp_path=train_path[:-4]+'_cleaned.txt'
 
+
+#学習データへの前処理
+with open(train_path) as f_in:
+    with open(tmp_path, 'a') as f_out:
+        for line in f_in:
+            text=line.lower()
+            text = re.sub(r"[^a-z ]", "", text)
+            text = re.sub(r"[ ]+", " ", text)
+            f_out.write(text)
+
+train_path=tmp_path
 
 #word2vecの学習
 vec_size=100
@@ -110,7 +120,7 @@ w2v_model.save(today_str+'_w2v.model')
 
 
 '''
-w2v_model.wv['computer']  # numpy vector of a word
+
 
 
 
@@ -124,11 +134,19 @@ https://github.com/RaRe-Technologies/gensim/blob/develop/gensim/models/wrappers/
 FastTextの方は要調査
 ft_model = FastText.train('/Users/kofola/fastText/fasttext', corpus_file='text8')
 
-        `ft_path` is the path to the FastText executable, e.g. `/home/kofola/fastText/fasttext`.
-        `corpus_file` is the filename of the text file to be used for training the FastText model.
-        Expects file to contain utf-8 encoded text.
+`ft_path` is the path to the FastText executable, e.g. `/home/kofola/fastText/fasttext`.
+`corpus_file` is the filename of the text file to be used for training the FastText model.
+Expects file to contain utf-8 encoded text.
 
 ft_pathはFastTextへの実行パス？どういうこと？
+ → https://groups.google.com/forum/#!topic/gensim/XX02Hzb_2l0
+    ここのサイト参考で解決しそう．ft_pathはfasttextのファイルへのパスのこと
+    gensimではなくまず本家(facebook)のgit cloneしたディレクトリでやるとよさげ
+
+http://gensim.narkive.com/dp1Mhp6z/gensim-9070-fasttext-wrapper-in-gensim
+
+fasttext本家のreadmeは一度読んどくべきかも
+
 corpus_fileは学習データみたい
 
 FastTextはcbowとskipgramの二つの学習方法があるがデフォルトではcbow
@@ -156,13 +174,11 @@ print('Making dic...')
 s=set()
 with open(train_path) as f:
     for line in f:
-        text=line.lower()
         text = text.replace("\n", " ").replace('\r','')
-        text = re.sub(r"[^a-z ]", "", text)
         text = re.sub(r"[ ]+", " ", text)
         text_list=text.split(" ")
         tmp_set=set(text_list)
-        s.update(tmp_set)
+        s.update(tmp_set)    #和集合をとる
 
 words = sorted(list(s))
 
@@ -185,7 +201,7 @@ indices_word = dict((i, c) for i, c in enumerate(words))
 
 print_time('make dic end')
 
-
+KeyError_set=set()
 
 
 # モデルの構築
@@ -209,11 +225,13 @@ my_model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
 #word2vecのベクトルを得る
 #未知語の場合には[0,0,0, ... ,0]みたいなやつにとりあえずしてる
+#未知語は集合に格納し，あとでファイル出力
 #要改良
 def get_w2v_vec(word):
     if word in w2v_model.wv.vocab:
         return w2v_model.wv[word]
     else:
+        KeyError_set.add(word)    #要素を追加
         return np.zeros((vec_size),dtype=np.float32)
 
 
@@ -261,9 +279,7 @@ for ep_i in range(my_epoch):
         text=""
         for line in f:
             read_i+=1
-            t_line = line.lower()
             t_line = t_line.replace("\n", " ").replace('\r','')
-            t_line = re.sub(r"[^a-z ]", "", t_line)
             t_line = re.sub(r"[ ]+", " ", t_line)
             text=text+' '+t_line
             # 1000行ごとに学習
@@ -566,6 +582,11 @@ with open(today_str+'_result.txt', 'a') as rslt:
 
 print(result)
 
+
+#未知語と認識された語を出力
+with open(today_str+'_KeyErrorWords.txt', 'a') as f_key:
+    for x in KeyError_set:
+        f_key.write(x+'\n')
 
 
 print('all_end = ',end_time)
