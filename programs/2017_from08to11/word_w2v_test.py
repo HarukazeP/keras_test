@@ -92,6 +92,7 @@ tmp_path=train_path[:-4]+'_cleaned.txt'
 
 
 #学習データへの前処理
+print('Preprpcessing training data...')
 with open(train_path) as f_in:
     with open(tmp_path, 'a') as f_out:
         for line in f_in:
@@ -201,6 +202,15 @@ indices_word = dict((i, c) for i, c in enumerate(words))
 
 print_time('make dic end')
 
+#単語から辞書IDを返す
+def search_word_indices(word):
+    if word in word_indices:
+        return word_indices[word]
+    else:
+        return word_indices["#OTHER"]
+
+
+
 KeyError_set=set()
 
 
@@ -259,7 +269,7 @@ def model_fit(midtext, model):
         for i, sentence in enumerate(f_sentences):
             for t, word in enumerate(sentence):
                 f_X[i, t] = get_w2v_vec(word)
-            y[i, word_indices[next_words[i]]] = 1
+            y[i, search_word_indices(next_words[i])] = 1
         
         for i, sentence in enumerate(r_sentences):
             for t, word in enumerate(sentence):
@@ -279,7 +289,7 @@ for ep_i in range(my_epoch):
         text=""
         for line in f:
             read_i+=1
-            t_line = t_line.replace("\n", " ").replace('\r','')
+            t_line = line.replace("\n", " ").replace('\r','')
             t_line = re.sub(r"[ ]+", " ", t_line)
             text=text+' '+t_line
             # 1000行ごとに学習
@@ -312,16 +322,6 @@ def sample(preds, temperature=1.0):
     preds = exp_preds / np.sum(exp_preds)
     probas = np.random.multinomial(1, preds, 1)
     return np.argmax(probas)
-
-
-
-
-#単語から辞書IDを返す
-def search_word_indices(word):
-    if word in word_indices:
-        return word_indices[word]
-    else:
-        return word_indices["#OTHER"]
 
 
 th_len =maxlen_words/2    #テストの際の長さの閾値
