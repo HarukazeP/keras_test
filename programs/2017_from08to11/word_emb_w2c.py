@@ -42,7 +42,7 @@ train_text8='./text8.txt'   # 約95MB 1行のみ　http://mattmahoney.net/dc/tex
 
 
 
-train_path = train_mid        #学習データ
+train_path = train_small        #学習データ
 test_path = './tmp_testdata_after.txt'     #答えつきテストデータ
 ch_path= './tmp_choices_after.txt'     #選択肢つきテストデータ
 
@@ -109,7 +109,6 @@ with open(train_path) as f:
     for line in f:
         text=line.lower()
         text = text.replace("\n", " ").replace('\r','')
-        text = re.sub(r"[^a-z ]", "", text)
         text = re.sub(r"[ ]+", " ", text)
         text_list=text.split(" ")
         tmp_set=set(text_list)
@@ -165,6 +164,7 @@ w2v_model.save(today_str+'_w2v.model')
 #未知語の場合には[0,0,0, ... ,0]みたいなやつにとりあえずしてる
 #未知語は集合に格納し，あとでファイル出力
 #要改良
+KeyError_set=set()
 def get_w2v_vec(word):
     if word in w2v_model.wv.vocab:
         return w2v_model.wv[word]
@@ -174,25 +174,37 @@ def get_w2v_vec(word):
 
 
 embedding_matrix = np.zeros((len_words+1, vec_size))
-for i in len_words+1:
-    embedding_matrix[i+1] = get_w2v_vec(indices_word[i+1])
-    #IDが0の単語が存在しないので0は飛ばす
+for i in range(len_words):
+    if i!=0:
+        embedding_matrix[i] = get_w2v_vec(indices_word[i])
+        #IDが0の単語が存在しないので0は飛ばす
 
 
 
 maxlen_words = 10
 step = 3
 
+'''
+#確認テスト
+test_word='was'
+test_id=search_word_indices(test_word)
+
+print(test_word, indices_word[test_id])
+print('\n\n')
+print(embedding_matrix[test_id])
+print(get_w2v_vec(test_word))
+'''
+
 
 # モデルの構築
 print('Build model...')
 f_input=Input(shape=(maxlen_words,))
-f_emb=Embedding(output_dim=128, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(f_input)
+f_emb=Embedding(output_dim=vec_size, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(f_input)
 
 f_layer=LSTM(128)(f_emb)
 
 r_input=Input(shape=(maxlen_words,))
-r_emb=Embedding(output_dim=128, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(r_input)
+r_emb=Embedding(output_dim=vec_size, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(r_input)
 r_layer=LSTM(128)(r_emb)
 
 merged_layer=add([f_layer, r_layer])
@@ -208,6 +220,8 @@ my_model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 #小さいデータをベクトル化してモデルを学習
 def model_fit(midtext, model):
     midtext = re.sub(r"[ ]+", " ", midtext)
+    if(midtext[0]==' '):
+        midtext=midtext[1:]
     text_list=midtext.split(" ")
     f_sentences = []
     r_sentences = []
@@ -219,7 +233,7 @@ def model_fit(midtext, model):
             r_sentences.append(text_list[i + maxlen_words+1: i + maxlen_words+1+maxlen_words][::-1]) #逆順のリスト
             next_words.append(text_list[i + maxlen_words])
         len_sent=len(f_sentences)
-        
+
         f_X = np.zeros((len_sent, maxlen_words), dtype=np.int)
         r_X = np.zeros((len_sent, maxlen_words), dtype=np.int)
         y = np.zeros((len_sent, len_words), dtype=np.bool)
@@ -227,7 +241,7 @@ def model_fit(midtext, model):
             for t, word in enumerate(sentence):
                 f_X[i, t] = word_indices[word]
             y[i, word_indices[next_words[i]]] = 1
-        
+
         for i, sentence in enumerate(r_sentences):
             for t, word in enumerate(sentence):
                 r_X[i, t] = word_indices[word]
@@ -248,14 +262,13 @@ for ep_i in range(my_epoch):
             read_i+=1
             t_line = line.lower()
             t_line = t_line.replace("\n", " ").replace('\r','')
-            t_line = re.sub(r"[^a-z ]", "", t_line)
             t_line = re.sub(r"[ ]+", " ", t_line)
             text=text+' '+t_line
             # 1000行ごとに学習
             if(read_i % 1000==0):
                 model_fit(text, my_model)
                 text=""
-                
+
     #最後の余りを学習
     if(len(text)>0):
         model_fit(text, my_model)
@@ -308,20 +321,19 @@ ch_list=[]
 line_num=0
 
 for line in all_lines:
-    #tmp=line.split("<>")    #ここ要変更，正規表現いけるなら<.+>とか？
     tmp=re.split('<.+>', line)
     if(len(tmp)>1):
         test_f_tmp=re.sub(r"[^a-z ]", "", tmp[0])
         test_f_tmp = re.sub(r"[ ]+", " ", test_f_tmp)
         test_r_tmp=re.sub(r"[^a-z ]", "", tmp[1])
-        test_r_tmp = re.sub(r"[ ]+", " ", test_r_tmp)            
+        test_r_tmp = re.sub(r"[ ]+", " ", test_r_tmp)
         test_f_line=test_f_tmp.split(" ")
         test_r_line=test_r_tmp.split(" ")
         if (len(test_f_line)>=th_len) and (len(test_r_line)>=th_len):
             if (len(test_f_line)>maxlen_words):
                 test_f_line=test_f_line[-1*maxlen_words:]
             if (len(test_r_line)>maxlen_words):
-                test_r_line=test_r_line[:maxlen_words]    
+                test_r_line=test_r_line[:maxlen_words]
             test_f_sentences.append(test_f_line)
             test_r_sentences.append(test_r_line[::-1])
             sents_num+=1
@@ -336,7 +348,7 @@ for line in all_lines:
             #テスト対象となるデータのみを出力
             with open(today_str+'_testdata.txt', 'a') as data:
                 data.write(line+'\n')
-                
+
     line_num+=1
 
 
@@ -355,8 +367,10 @@ def print_rank(list1, fname):
     with open(fname, "a") as file:
         #print('Write rank ...')
         for k,v in list_B:
-            str=indices_word[k]+ " ### "
-            file.write(str)
+            if k!=0:
+                #idが0は存在しないので飛ばす
+                str=indices_word[k]+ " ### "
+                file.write(str)
         file.write('\n')
 
 
@@ -382,11 +396,11 @@ for i in range(sents_num):
         else:
             test_r_x[0, t] = tmp_index
     preds = my_model.predict([test_f_x,test_r_x], verbose=0)[0]
-        
+
     print_rank(preds, today_str+'_rank.txt')
     test_next_index = sample(preds)
     test_next_word = indices_word[test_next_index]
-    
+
     #サンプリングでの予測語をリストに格納
     preds_list.append(test_next_word)
 
@@ -403,9 +417,9 @@ def word_to_rank(word, ra_list):
     else:
         #無いときは-1
         str_num='-1'
-    
+
     return str_num
-    
+
 
 
 #ランクリストと選択肢リストから，選択肢をランクリストの何番目に現れるか（順位）つきで並べた文字列を返す
@@ -420,7 +434,7 @@ def search_rank(ra_list, ch_list):
     #末尾のシャープとか消す
     k=len(str_rank)-5
     str_rank=str_rank[:k]
-    
+
     return str_rank
 
 
@@ -444,7 +458,7 @@ def serch_highest(str_rank, ch_list):
             min=i
             min_ct=ct
         ct+=1
-        
+
     if flag==0:
         word='#OTHER'
     else:
@@ -548,15 +562,6 @@ print(result)
 print('all_end = ',end_time)
 
 plot_model(my_model, to_file=today_str+'model.png', show_shapes=True)
-
-#確認テスト
-test_word='was'
-test_id=search_word_indices(test_word)
-
-print(test_word, indices_word[test_id])
-print('\n\n')
-print(embedding_matrix[test_id])
-print(get_w2v_vec(test_word))
 
 
 
