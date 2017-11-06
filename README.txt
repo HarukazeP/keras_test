@@ -36,7 +36,9 @@ programs
 ・bidirectionalレイヤーの実装
 ・単語1語ではなく2語以上へも拡張
 ・LSTM以外にCNNとかQRNNも試してみる？
-・embeddingの代わりor初期値にword2vecやglove，fastTextなど試す
+・損失関数とかのグラフ出力（matplot）
+・earlystopping関数
+・attensionモデルの構造
 
 
 -----その他雑記-------------------------------------------
