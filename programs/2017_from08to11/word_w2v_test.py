@@ -89,7 +89,7 @@ tmp_path=train_path[:-4]+'_cleaned.txt'
 #学習データへの前処理
 print('Preprpcessing training data...')
 with open(train_path) as f_in:
-    with open(tmp_path, 'a') as f_out:
+    with open(tmp_path, 'w') as f_out:
         for line in f_in:
             text=line.lower()
             text = re.sub(r"[^a-z ]", "", text)
