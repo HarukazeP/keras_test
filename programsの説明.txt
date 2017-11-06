@@ -138,6 +138,12 @@ word_w2v_test.py
 まず学習データでword2vecの学習から始め，それが終わるとニューラルネットの学習へと移る
 
 
+word_ft_test.py
+word_w2v_test.pyのfasttext版
 
+
+word_emb_w2c.py
+embeddingの際，word2vecのベクトルを利用し，embedding層は学習を行わないモデル
+word_embedding.pyとword_w2v_test.pyの合体版みたいな
 
 
