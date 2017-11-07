@@ -50,7 +50,7 @@ ch_path= './tmp_choices_after.txt'     #選択肢つきテストデータ
 
 #出力されるもの
 
-dic_path='../wordlist_WikiSentWithEndMark1.txt'    #辞書データ？単語リスト的な
+dic_path='./wordlist_WikiSentWithEndMark1.txt'    #辞書データ？単語リスト的な
 
 
 '''
@@ -145,10 +145,12 @@ def search_word_indices(word):
 
 
 
-#word2vecの学習
+#fasttextの学習
 vec_size=100
 
 print('Learning fasttext...')
+
+myft_path='/home/tamaki/M1/Keras/mine2017_8to11/fastText/fasttext'
 ft_model = FastText.train(ft_path=myft_path, corpus_file=train_path, size=vec_size, window=5, min_count=0)
 ft_model.save(today_str+'_ft.model')
 # FastTextはcbowとskipgramの二つの学習方法があるがデフォルトではcbow
@@ -162,7 +164,7 @@ print_time('FastText end')
 #要改良
 KeyError_set=set()
 def get_ft_vec(word):
-    if word in ft_model.wv.vocab:  
+    if word in ft_model.wv.vocab:
         return ft_model[word]
     else:
         KeyError_set.add(word)    #要素を追加
