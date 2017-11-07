@@ -147,3 +147,10 @@ embeddingの際，word2vecのベクトルを利用し，embedding層は学習を
 word_embedding.pyとword_w2v_test.pyの合体版みたいな
 
 
+word_emb_ft.py
+word_emb_w2c.pyのfasttext版
+
+
+
+
+
