@@ -23,13 +23,14 @@ import sys
 import datetime
 import gensim
 import matplotlib.pyplot as plt
+from keras.callbacks import History
 
 
 start_time=datetime.datetime.today()
 print('all_start = ',start_time)
 today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
-my_epoch=10
+my_epoch=3
 
 today_str=today_str+'_epoch'+str(my_epoch)
 
@@ -199,16 +200,6 @@ for i in range(len_words):
 maxlen_words = 10
 step = 3
 
-'''
-#確認テスト
-test_word='was'
-test_id=search_word_indices(test_word)
-
-print(test_word, indices_word[test_id])
-print('\n\n')
-print(embedding_matrix[test_id])
-print(get_ft_vec(test_word))
-'''
 
 
 # モデルの構築
@@ -261,15 +252,17 @@ def model_fit(midtext, model):
             for t, word in enumerate(sentence):
                 r_X[i, t] = word_indices[word]
         # モデルの学習
-        model.fit([f_X,r_X], y, batch_size=128, epochs=1, validation_split=0.1)
+        history=model.fit([f_X,r_X], y, batch_size=128, epochs=1, validation_split=0.1)
 
-
+        return history
 
 
 
 # 学習（大きなコーパスに対応するようにしてる）
+#kerasのepochじゃなくてこのforループ回すことで先頭の学習データ2回目みたいなことしたい
+#これ意味あるかどうかはわからない
 for ep_i in range(my_epoch):
-    print('\nEPOCH='+str(my_epoch)+'\n')
+    print('\nEPOCH='+str(ep_i+1)+'/'+str(my_epoch)+'\n')
     with open(train_path) as f:
         read_i=0
         text=""
@@ -281,15 +274,13 @@ for ep_i in range(my_epoch):
             text=text+' '+t_line
             # 1000行ごとに学習
             if(read_i % 1000==0):
-                history=model_fit(text, my_model)
+                my_hist=model_fit(text, my_model)
                 text=""
 
     #最後の余りを学習
     if(len(text)>0):
-        history=model_fit(text, my_model)
+        my_hist=model_fit(text, my_model)
     text=""
-    
-    plot_history(history)
 
 print_time('fit end')
 
@@ -577,7 +568,7 @@ print(result)
 
 
 print('all_end = ',end_time)
-
+plot_history(my_hist)
 plot_model(my_model, to_file=today_str+'model.png', show_shapes=True)
 
 
