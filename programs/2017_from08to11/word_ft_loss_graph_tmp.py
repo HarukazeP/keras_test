@@ -30,7 +30,7 @@ start_time=datetime.datetime.today()
 print('all_start = ',start_time)
 today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
-my_epoch=3
+my_epoch=100
 
 today_str=today_str+'_epoch'+str(my_epoch)
 
@@ -44,7 +44,7 @@ train_text8='./text8.txt'   # 約95MB 1行のみ　http://mattmahoney.net/dc/tex
 
 
 
-train_path = train_small        #学習データ
+train_path = train_mid        #学習データ
 test_path = './tmp_testdata_after.txt'     #答えつきテストデータ
 ch_path= './tmp_choices_after.txt'     #選択肢つきテストデータ
 
