@@ -23,8 +23,7 @@ import sys
 import datetime
 import gensim
 import matplotlib.pyplot as plt
-from keras.callbacks import History
-
+import os
 
 start_time=datetime.datetime.today()
 print('all_start = ',start_time)
@@ -33,6 +32,9 @@ today_str = start_time.strftime("%Y_%m_%d_%H%M")
 my_epoch=3
 
 today_str=today_str+'_epoch'+str(my_epoch)
+os.mkdir(today)
+today_str='./'+today_str+'/'
+#日付名+epoch数のフォルダを作成し、結果はすべてそこに格納
 
 #読み込むもの
 
