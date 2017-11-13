@@ -4,7 +4,7 @@ kerasのチュートリアルで使用されているコーパス
 
 
 miniWiki_tmp8.txt
-WikiSentWithEndMark1.txt(約5.8GB，約2000万行)では大きすぎたためこれからn行おきに1行ずつ抽出し，約1.5MB(約○○行)まで減らしたもの
+WikiSentWithEndMark1.txt(約5.8GB，約2000万行)では大きすぎたためこれからn行おきに1行ずつ抽出し，約1.5MB(5293行)まで減らしたもの
 
 
 mini_center_goudouzemi.txt
@@ -33,7 +33,11 @@ ans_testdata_goudouzemi2.txt　と同じ
 
 ---- 以下，プログラム中に記載しているがgitにはアップロードしてないもの ----
 
+WikiSentWithEndMark1.txt
+約5.8GB(20325670行)
 
+text8.txt
+約95MB(1行)
 
 
 
