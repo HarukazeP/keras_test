@@ -32,7 +32,7 @@ today_str = start_time.strftime("%Y_%m_%d_%H%M")
 my_epoch=3
 
 today_str=today_str+'_epoch'+str(my_epoch)
-os.mkdir(today)
+os.mkdir(today_str)
 today_str='./'+today_str+'/'
 #日付名+epoch数のフォルダを作成し、結果はすべてそこに格納
 
