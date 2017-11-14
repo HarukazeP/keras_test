@@ -29,10 +29,10 @@ start_time=datetime.datetime.today()
 print('all_start = ',start_time)
 today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
-my_epoch=3
+my_epoch=2
 
 today_str=today_str+'_epoch'+str(my_epoch)
-os.mkdir(today)
+os.mkdir(today_str)
 today_str='./'+today_str+'/'
 #日付名+epoch数のフォルダを作成し、結果はすべてそこに格納
 
@@ -353,12 +353,54 @@ for line in all_lines:
 print('test_sentences:', sents_num)
 
 
+
+#2つのベクトルのコサイン類似度を返す
+def calc_similarity(pred_vec, ans_vec):
+    len_p=np.linalg.norm(pred_vec)
+    len_a=np.linalg.norm(ans_vec)
+    if len_p==0 or len_a==0:
+        return 0.0
+    return np.dot(pred_vec/len_p, ans_vec/len_a)
+
+
+
+#全単語の中からベクトルの類似度の高い順にファイル出力（あとで考察用）し，
+#上位1語とその類似度，選択肢の各語の順位と類似度を返す
+def get_rank(pred_vec, choices, fname):
+    dict_all=dict()
+    dict_ch=dict()
+    choi_list=choices.split(' ### ')
+    for i in range(len_words):
+        if i!=0:
+            word=indices_word[i]
+            dict_all[word]=calc_similarity(pred_vec, get_ft_vec(word))
+    for x in choi_list:
+        dict_ch[x]=calc_similarity(pred_vec, get_ft_vec(x))
+    list_ch = sorted(dict_ch.items(), key=lambda x: x[1])
+    list_all = sorted(dict_all.items(), key=lambda x: x[1])
+    with open(fname, "a") as file:
+        #print('Write rank ...')
+        for w,sim in list_all:
+            str=w+ " ### "
+            file.write(str)
+        file.write('\n')
+    return (list_all[0], list_ch)
+    #返り値は(単語, 類似度), {(単語, 類似度),(単語, 類似度)...}
+
+
+
+
+
+
+
+
+
 #テスト(大規模データには非対応)
 print('Test starts ...')
 
 preds_list=[]
 top_list=[]
-choice_list[]
+choice_list=[]
 #テストデータのベクトル化
 for i in range(sents_num):
     test_f_x = np.zeros((1, maxlen_words))
@@ -379,48 +421,13 @@ for i in range(sents_num):
     preds = my_model.predict([test_f_x,test_r_x], verbose=0)
     preds_list.append(preds)
     #予測結果の格納
-    top, choice=get_rank(preds, ch_list[i], today_str+'_rank.txt')
+    tmp=get_rank(preds, ch_list[i], today_str+'_rank.txt')
+    top=tmp[0]
+    choice=tmp[1]
     top_list.append(top)
     choice_list.append(choice)
 
 print_time('test end')
-
-
-
-#2つのベクトルのコサイン類似度を返す
-def calc_similarity(pred_vec, ans_vec):
-	len_p=np.linalg.norm(pred_vec)
-	len_a=np.linalg.norm(ans_vec)
-	if len_p==0 or len_a==0:
-		return 0.0
-	return np.dot(pred_vec/len_p, ans_vec/len_a)
-
-
-
-#全単語の中からベクトルの類似度の高い順にファイル出力（あとで考察用）し，
-#上位1語とその類似度，選択肢の各語の順位と類似度を返す
-def get_rank(pred_vec, choices, fname):
-	dict_all=dict()
-	dict_ch=dict()
-	choi_list=choices.split(' ### ')
-	for i in range(len_words):
-		if i!=0:
-			word=indices_word[i]
-			dict_A[word]=calc_similarity(pred_vec, get_ft_vec(word))
-	for x in choi_list:
-		dict_ch[x]=calc_similarity(pred_vec, get_ft_vec(x))
-	list_all = sorted(dict_all.items(), key=lambda x: x[1])
-    with open(fname, "a") as file:
-        #print('Write rank ...')
-        for w,sim in list_all:
-            str=w+ " ### "
-            file.write(str)
-        file.write('\n')
-	return list_all[0], dict_ch
-	#返り値は(単語, 類似度), {(単語, 類似度),(単語, 類似度)...}
-
-
-
 
 
 #単語とランクリストから単語の順位をstring型で返す
@@ -434,29 +441,15 @@ def word_to_rank(word, ra_list):
 
     return str_num
 
-
-
-
-
-
-
-        
-
-
-
-
-
-
 #全単語の内類似度1語の正誤をファイル書き込み，正誤結果を返す
 def calc_rank1word(top, ans, ra_list, ans_sim):
     rank_top=word_to_rank(top[0], ra_list)
     rank_ans=word_to_rank(ans, ra_list)
-    sim_ans=
     out=''
     with open(today_str+'_rankOK.txt', 'a') as rOK:
         with open(today_str+'_rankNG.txt', 'a') as rNG:
             out='pred= ('+top[0]+', '+rank_top+', '+str(top[1])+')   '+'ans= ('+ans+', '+rank_ans+', '+str(ans_sim)+')\n'
-            if pred==ans:
+            if top[0]==ans:
                 rOK.write(out)
                 OK_num=1
             else:
@@ -467,28 +460,14 @@ def calc_rank1word(top, ans, ra_list, ans_sim):
 
 
 
-
-
-
-
-
-
-
-        calc_rank4choices(choice_list[sent_i], ans_list[sent_i], rank_list)
-
-
-		list_ch = sorted(dict_ch.items(), key=lambda x: x[1])
-
-
-
-
 #選択肢で選んだ際の正誤をファイル書き込み，正誤結果を返す
+#choices=[(単語,類似度),(単語,類似度), ...]の形式
 def calc_rank4choices(choices, ans, ra_list, ans_sim):
-	list_ch = sorted(choices.items(), key=lambda x: x[1])
-	pred=list_ch[0][0]
-	out='ans= ('+ans+', '+rank_ans+', '+str(ans_sim)+')    '+'choices='
-	for word,sim in choices:
-		out=out+'('+word+', '+word_to_rank(word, ra_list)+', '+str(sim)+')  '
+    pred=choices[0][0]
+    rank_ans=word_to_rank(ans, ra_list)
+    out='ans= ('+ans+', '+rank_ans+', '+str(ans_sim)+')    '+'choices='
+    for word,sim in choices:
+        out=out+'('+word+', '+word_to_rank(word, ra_list)+', '+str(sim)+')  '
     with open(today_str+'_choicesOK.txt', 'a') as cOK:
         with open(today_str+'_choicesNG.txt', 'a') as cNG:
             out=out+'\n'
@@ -513,7 +492,7 @@ with open(today_str+'_rank.txt',"r") as rank:
         rank_list=rank_line.split(' ### ')
         ans=ans_list[sent_i]
         ans_sim=calc_similarity(preds_list[sent_i], get_ft_vec(ans))
-        rankOK+=calc_rank1word(top_list[sent_i], , rank_list, ans_sim)
+        rankOK+=calc_rank1word(top_list[sent_i], ans, rank_list, ans_sim)
         choiOK+=calc_rank4choices(choice_list[sent_i], ans, rank_list, ans_sim)
         sent_i+=1
 
@@ -526,8 +505,7 @@ choiNG=sent_i - choiOK
 rank_result='rank: '+str(rank_acc)+' ( OK: '+str(rankOK)+'   NG: '+str(rankNG)+' )\n'
 choi_result='choi: '+str(choi_acc)+' ( OK: '+str(choiOK)+'   NG: '+str(choiNG)+' )\n'
 
-
-result=samp_result+rank_result+choi_result
+result=rank_result+choi_result
 
 end_time=datetime.datetime.today()
 diff_time=end_time-start_time
