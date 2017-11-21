@@ -22,39 +22,39 @@ import random
 import sys
 import datetime
 import gensim
-import matplotlib.pyplot as plt
 import os
+import matplotlib.pyplot as plt
+
+my_epoch=3
 
 start_time=datetime.datetime.today()
 print('all_start = ',start_time)
 today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
-my_epoch=3
-
-today_str=today_str+'_epoch'+str(my_epoch)
+today_str=today_str+'epoch'+str(my_epoch)
 os.mkdir(today_str)
 today_str='./'+today_str+'/'
 #日付名+epoch数のフォルダを作成し、結果はすべてそこに格納
 
 #読み込むもの
 
-train_big='./WikiSentWithEndMark1.txt'   # 約5.8GB，約2000万行
-train_mid='./miniWiki_tmp8.txt'   # 約1.5MB，約5000行
-train_small='./nietzsche.txt'   # 約600KB，約1万行
+train_big='../corpus/WikiSentWithEndMark1.txt'   # 約5.8GB，約2000万行
+train_mid='../corpus/miniWiki_tmp8.txt'   # 約1.5MB，約5000行
+train_small='../corpus/nietzsche.txt'   # 約600KB，約1万行
 
-train_text8='./text8.txt'   # 約95MB 1行のみ　http://mattmahoney.net/dc/text8.zip
+train_text8='../corpus/text8.txt'   # 約95MB 1行のみ　http://mattmahoney.net/dc/text8.zip
 
 
 
 train_path = train_small        #学習データ
-test_path = './tmp_testdata_after.txt'     #答えつきテストデータ
-ch_path= './tmp_choices_after.txt'     #選択肢つきテストデータ
+test_path = '../corpus/tmp_testdata_after.txt'     #答えつきテストデータ
+ch_path= '../corpus/tmp_choices_after.txt'     #選択肢つきテストデータ
 
 
 
 #出力されるもの
 
-dic_path='./wordlist_WikiSentWithEndMark1.txt'    #辞書データ？単語リスト的な
+dic_path=today_str+'wordlist_WikiSentWithEndMark1.txt'    #辞書データ？単語リスト的な
 
 
 '''
@@ -91,15 +91,19 @@ def print_time(str1):
 tmp_path=train_path[:-4]+'_cleaned.txt'
 
 
+def conect_hist(list_loss, list_val_loss, new_history):
+    list_loss.extend(new_history.history['loss'])
+    list_val_loss.extend(new_history.history['val_loss'])
+
 # 損失の履歴をプロット
-def plot_history(history, title='model loss'):
-    plt.plot(history.history['loss'], color="blue", marker="o", label='loss')
-    plt.plot(history.history['val_loss'], color="green", marker="o", label='val_loss')
+def plot_loss(list_loss, list_val_loss, title='model loss'):
+    plt.plot(list_loss, color="blue", marker="o", label='loss')
+    plt.plot(list_val_loss, color="green", marker="o", label='val_loss')
     plt.title(title)
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.legend()
-    plt.savefig(today_str+'_loss.png')
+    plt.savefig(today_str+'loss_graph.png')
     #plt.show()
     #必ずsave→showの順番
 
@@ -172,7 +176,7 @@ print('Learning fasttext...')
 
 myft_path='/home/tamaki/M1/Keras/mine2017_8to11/fastText/fasttext'
 ft_model = FastText.train(ft_path=myft_path, corpus_file=train_path, size=vec_size, window=5, min_count=0)
-ft_model.save(today_str+'_ft.model')
+ft_model.save(today_str+'ft.model')
 # FastTextはcbowとskipgramの二つの学習方法があるがデフォルトではcbow
 
 print_time('FastText end')
@@ -259,7 +263,8 @@ def model_fit(midtext, model):
         return history
 
 
-
+list_loss=list()
+list_val_loss=list()
 # 学習（大きなコーパスに対応するようにしてる）
 #kerasのepochじゃなくてこのforループ回すことで先頭の学習データ2回目みたいなことしたい
 #これ意味あるかどうかはわからない
@@ -277,20 +282,20 @@ for ep_i in range(my_epoch):
             # 1000行ごとに学習
             if(read_i % 1000==0):
                 my_hist=model_fit(text, my_model)
+                conect_hist(list_loss, list_val_loss, my_hist)
                 text=""
 
     #最後の余りを学習
     if(len(text)>0):
         my_hist=model_fit(text, my_model)
+        conect_hist(list_loss, list_val_loss, my_hist)
     text=""
 
 print_time('fit end')
 
-
-
 #モデルの保存
 model_json_str = my_model.to_json()
-file_model=today_str+'_my_model'
+file_model=today_str+'my_model'
 open(file_model+'.json', 'w').write(model_json_str)
 my_model.save_weights(file_model+'.h5')
 
@@ -356,7 +361,7 @@ for line in all_lines:
             tmp_ch=tmp_ch[tmp_ch.find('<')+1:tmp_ch.find('>')]
             ch_list.append(tmp_ch)
             #テスト対象となるデータのみを出力
-            with open(today_str+'_testdata.txt', 'a') as data:
+            with open(today_str+'testdata.txt', 'a') as data:
                 data.write(line+'\n')
 
     line_num+=1
@@ -407,7 +412,7 @@ for i in range(sents_num):
             test_r_x[0, t] = tmp_index
     preds = my_model.predict([test_f_x,test_r_x], verbose=0)[0]
 
-    print_rank(preds, today_str+'_rank.txt')
+    print_rank(preds, today_str+'rank.txt')
     test_next_index = sample(preds)
     test_next_word = indices_word[test_next_index]
 
@@ -483,8 +488,8 @@ def calc_samp1word(pred, ans, list_rank):
     rank_pred=word_to_rank(pred, list_rank)
     rank_ans=word_to_rank(ans, list_rank)
     out=''
-    with open(today_str+'_sampOK.txt', 'a') as sOK:
-        with open(today_str+'_sampNG.txt', 'a') as sNG:
+    with open(today_str+'sampOK.txt', 'a') as sOK:
+        with open(today_str+'sampNG.txt', 'a') as sNG:
             out='pred= '+pred+' : '+rank_pred+'     '+'ans= '+ans+' : '+rank_ans+'\n'
             if pred==ans:
                 sOK.write(out)
@@ -499,8 +504,8 @@ def calc_rank1word(pred, ans, list_rank):
     rank_pred=word_to_rank(pred, list_rank)
     rank_ans=word_to_rank(ans, list_rank)
     out=''
-    with open(today_str+'_rankOK.txt', 'a') as rOK:
-        with open(today_str+'_rankNG.txt', 'a') as rNG:
+    with open(today_str+'rankOK.txt', 'a') as rOK:
+        with open(today_str+'rankNG.txt', 'a') as rNG:
             out='pred= '+pred+' : '+rank_pred+'     '+'ans= '+ans+' : '+rank_ans+'\n'
             if pred==ans:
                 rOK.write(out)
@@ -517,8 +522,8 @@ def calc_rank4choices(choices, ans, list_rank):
     out=search_rank(list_rank, choi_list)
     pred=serch_highest(out, choi_list)
 
-    with open(today_str+'_choicesOK.txt', 'a') as cOK:
-        with open(today_str+'_choicesNG.txt', 'a') as cNG:
+    with open(today_str+'choicesOK.txt', 'a') as cOK:
+        with open(today_str+'choicesNG.txt', 'a') as cNG:
             out=out+'\n'
             if pred==ans:
                 cOK.write(out)
@@ -535,7 +540,7 @@ sampOK=0
 rankOK=0
 choiOK=0
 
-with open(today_str+'_rank.txt',"r") as rank:
+with open(today_str+'rank.txt',"r") as rank:
     for line in rank:
         rank_line=line.lower().replace('\n','').replace('\r','')
         rank_list=rank_line.split(' ### ')
@@ -562,7 +567,7 @@ result=samp_result+rank_result+choi_result
 end_time=datetime.datetime.today()
 diff_time=end_time-start_time
 
-with open(today_str+'_result.txt', 'a') as rslt:
+with open(today_str+'result.txt', 'a') as rslt:
     rslt.write(result+'\ntotal time ='+str(diff_time))
 
 print(result)
@@ -570,7 +575,7 @@ print(result)
 
 
 print('all_end = ',end_time)
-plot_history(my_hist)
+plot_loss(list_loss, list_val_loss)
 plot_model(my_model, to_file=today_str+'model.png', show_shapes=True)
 
 
