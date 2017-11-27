@@ -22,7 +22,7 @@ start_time=datetime.datetime.today()
 print('all_start = ',start_time)
 today_str = start_time.strftime("%Y_%m_%d_%H%M")
 
-today_str=today_str+'epoch'+str(my_epoch)
+today_str=today_str+'_vec'
 os.mkdir(today_str)
 today_str='./'+today_str+'/'
 #日付名+epoch数のフォルダを作成し、結果はすべてそこに格納
@@ -100,11 +100,6 @@ train_small='../corpus/nietzsche.txt'   # 約600KB，約1万行
 train_text8='../corpus/text8.txt'   # 約95MB 1行のみ　http://mattmahoney.net/dc/text8.zip
 
 
-test_path = '../corpus/tmp_testdata_after.txt'     #答えつきテストデータ
-ch_path= '../corpus/tmp_choices_after.txt'     #選択肢つきテストデータ
-
-
-
 #出力されるもの
 
 vec_big=today_str+'vec_Wiki.txt'
@@ -125,7 +120,7 @@ print_time('mif end')
 print_vec(train_small, vec_small, model4)
 print_time('small end')
 
-
+end_time=datetime.datetime.today()
 print('all_end = ',end_time)
-
+diff_time=end_time-start_time
 print('total =',diff_time)
