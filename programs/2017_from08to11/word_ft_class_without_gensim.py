@@ -107,19 +107,23 @@ word_indices=dict()
 indices_word=dict()
 vec_dict=dict()
 i=0
+text=""
 with open(vec_path,"r") as f:
     for line in f:
-        line=line.replace("\n", " ").replace('\r','')
-        line=re.sub(r"[ ]+", " ", line)
-        tmp_list=line.split(" > ")
-        word=tmp_list[0]
-        str_numpy=tmp_list[1]
-        #辞書の作成
-        #0番目はパディング用の数字なので使わないことに注意
-        word_indices[word]=i+1
-        indices_word[i+1]=word
-        vec_dict[word]=str_to_numpy(str_numpy)
-        i+=1
+        text=text+line
+        if line.find(']')>=0:
+            text=text.replace("\n", " ").replace('\r','')
+            text=re.sub(r"[ ]+", " ", text)
+            tmp_list=text.split(" > ")
+            word=tmp_list[0]
+            str_numpy=tmp_list[1]
+            #辞書の作成
+            #0番目はパディング用の数字なので使わないことに注意
+            word_indices[word]=i+1
+            indices_word[i+1]=word
+            vec_dict[word]=str_to_numpy(str_numpy)
+            text=""
+            i+=1
 
 word_indices['#OTHER']=i+1
 indices_word[i+1]='#OTHER'
