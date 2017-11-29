@@ -22,7 +22,7 @@ import sys
 import datetime
 import os
 
-my_epoch=2
+my_epoch=100
 
 vec_size=100
 
@@ -115,6 +115,7 @@ def str_to_numpy(str_numpy):
     '''
 
 #fasttextベクトルの用意と辞書の作成
+print('Loading fasttext vec ...')
 s=set()
 word_indices=dict()
 indices_word=dict()
