@@ -95,11 +95,11 @@ def conect_hist(list_loss, list_val_loss, new_history):
 
 
 def str_to_numpy(str_numpy):
-	str_numpy=str_numpy.replace('[', '').replace(']', '')
-	str_list=str_numpy.split(' ')
-	str_array=np.array(str_list)
-	return str_array.astype(np.float32)
-	
+    str_numpy=str_numpy.replace('[', '').replace(']', '')
+    str_list=str_numpy.split(' ')
+    str_array=np.array(str_list)
+    return str_array.astype(np.float32)
+    
 
 #fasttextベクトルの用意と辞書の作成
 s=set()
@@ -108,18 +108,18 @@ indices_word=dict()
 vec_dict=dict()
 i=0
 with open(vec_path,"r") as f:
-	for line in f:
-		line=line.replace("\n", " ").replace('\r','')
-		line=re.sub(r"[ ]+", " ", line)
-		tmp_list=line.split(" > ")
-		word=tmp_list[0]
-		str_numpy=tmp_list[1]
-		#辞書の作成
-		#0番目はパディング用の数字なので使わないことに注意
-		word_indices[word]=i+1
-		indices_word[i+1]=word
-		vec_dict[word]=str_to_numpy(str_numpy)
-		i+=1
+    for line in f:
+        line=line.replace("\n", " ").replace('\r','')
+        line=re.sub(r"[ ]+", " ", line)
+        tmp_list=line.split(" > ")
+        word=tmp_list[0]
+        str_numpy=tmp_list[1]
+        #辞書の作成
+        #0番目はパディング用の数字なので使わないことに注意
+        word_indices[word]=i+1
+        indices_word[i+1]=word
+        vec_dict[word]=str_to_numpy(str_numpy)
+        i+=1
 
 word_indices['#OTHER']=i+1
 indices_word[i+1]='#OTHER'
