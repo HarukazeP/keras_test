@@ -22,7 +22,7 @@ import sys
 import datetime
 import os
 
-my_epoch=100
+my_epoch=2
 
 vec_size=100
 
@@ -48,7 +48,7 @@ train_text8='../corpus/text8.txt'   # 約95MB 1行のみ　http://mattmahoney.ne
 train_text8_cleaned='../corpus/text8_cleaned.txt'
 
 train_path = train_text8_cleaned        #学習データ
-vec_path='./vec.txt'    #fasttextのベクトルを書き出したファイル
+vec_path='/home/tamaki/M1/Keras/mine2017_8to11/2017_11_28_2032epoch100/vec.txt'    #fasttextのベクトルを書き出したファイル
 
 test_path = '../corpus/tmp_testdata_after.txt'     #答えつきテストデータ
 ch_path= '../corpus/tmp_choices_after.txt'     #選択肢つきテストデータ
@@ -95,11 +95,24 @@ def conect_hist(list_loss, list_val_loss, new_history):
 
 
 def str_to_numpy(str_numpy):
+    str_numpy=str_numpy.replace(' [ ', '').replace(' ] ', '')
+    str_numpy=str_numpy.replace('[ ', '').replace('] ', '')
+    str_numpy=str_numpy.replace(' [', '').replace(' ]', '')
     str_numpy=str_numpy.replace('[', '').replace(']', '')
     str_list=str_numpy.split(' ')
+    len_list=len(str_list)
+    #print (str_list)
+    array=np.zeros(len_list,dtype=np.float32)
+    for i in range(len_list):
+        array[i]=float(str_list[i])
+
+    return array
+
+    '''
+    #ValueError: could not convert string to float:
     str_array=np.array(str_list)
     return str_array.astype(np.float32)
-    
+    '''
 
 #fasttextベクトルの用意と辞書の作成
 s=set()
@@ -112,18 +125,21 @@ with open(vec_path,"r") as f:
     for line in f:
         text=text+line
         if line.find(']')>=0:
-            text=text.replace("\n", " ").replace('\r','')
+            text=text.replace("\n", '').replace('\r','')
             text=re.sub(r"[ ]+", " ", text)
             tmp_list=text.split(" > ")
             word=tmp_list[0]
             str_numpy=tmp_list[1]
+            #print(str_numpy)
             #辞書の作成
             #0番目はパディング用の数字なので使わないことに注意
-            word_indices[word]=i+1
-            indices_word[i+1]=word
-            vec_dict[word]=str_to_numpy(str_numpy)
-            text=""
-            i+=1
+            if word!='':
+                word_indices[word]=i+1
+                indices_word[i+1]=word
+                #print ('word_i=',i)
+                vec_dict[word]=str_to_numpy(str_numpy)
+                text=""
+                i+=1
 
 word_indices['#OTHER']=i+1
 indices_word[i+1]='#OTHER'
@@ -142,7 +158,7 @@ def get_ft_vec(word):
         return vec_dict[word]
     else:
         KeyError_set.add(word)    #要素を追加
-        return np.zeros((vec_size),dtype=np.float32)
+        return np.zeros(vec_size,dtype=np.float32)
 
 
 embedding_matrix = np.zeros((len_words+1, vec_size))
