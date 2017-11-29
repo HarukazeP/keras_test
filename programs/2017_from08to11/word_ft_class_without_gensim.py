@@ -48,7 +48,7 @@ train_text8='../corpus/text8.txt'   # 約95MB 1行のみ　http://mattmahoney.ne
 train_text8_cleaned='../corpus/text8_cleaned.txt'
 
 train_path = train_text8_cleaned        #学習データ
-vec_path='/home/tamaki/M1/Keras/mine2017_8to11/2017_11_28_2032epoch100/vec.txt'    #fasttextのベクトルを書き出したファイル
+vec_path='../corpus/2017_11_28_2032_ft_vec.txt'    #fasttextのベクトルを書き出したファイル
 
 test_path = '../corpus/tmp_testdata_after.txt'     #答えつきテストデータ
 ch_path= '../corpus/tmp_choices_after.txt'     #選択肢つきテストデータ
