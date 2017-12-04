@@ -42,7 +42,7 @@ train_big='../corpus/WikiSentWithEndMark1.txt'   # 約5.8GB，約2000万行
 train_mid='../corpus/miniWiki_tmp8.txt'   # 約1.5MB，約5000行
 train_small='../corpus/nietzsche.txt'   # 約600KB，約1万行
 
-train_text8='../corpus/text8.txt'   # 約95MB 1行のみ　http://mattmahoney.net/dc/text8.zip
+train_text8='../corpus/text8.txt'   # 約95MB 1行のみ, wcで数えたら約1700万単語　http://mattmahoney.net/dc/text8.zip
 
 
 
