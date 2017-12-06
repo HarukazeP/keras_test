@@ -1,3 +1,6 @@
+github上で表示される辞書順ではなく作成日時順に各プログラムの説明をしています
+
+
 -----ForCourpusディレクトリ内----------------------------------------
 
 FilePro5.java　と　WikiSentCheck.java
@@ -149,6 +152,33 @@ word_embedding.pyとword_w2v_test.pyの合体版みたいな
 
 word_emb_ft.py
 word_emb_w2c.pyのfasttext版
+
+
+word_ft_loss_graph.py
+
+word_ft_output_vec.py
+
+
+
+
+word_ft_class.py
+word_ft_regression.py
+
+
+
+make_ft_vec.py
+word_ft_class_without_gensim.py
+
+
+
+
+
+
+
+
+
+
+-----2017_from12to03ディレクトリ内----------------------------------------
 
 
 
