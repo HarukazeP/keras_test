@@ -155,18 +155,27 @@ word_emb_w2c.pyのfasttext版
 
 
 word_ft_loss_graph.py
+word_emb_ft.py から変更
+学習時の誤差lossとval_lossをグラフ出力
+
 
 word_ft_output_vec.py
-
+word_ft_loss_graph.py から大きく変更
 
 
 
 word_ft_class.py
+
+
+
 word_ft_regression.py
 
 
 
 make_ft_vec.py
+
+
+
 word_ft_class_without_gensim.py
 
 
