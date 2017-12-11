@@ -501,7 +501,7 @@ def calc_rank4choices(choices, ans, list_rank):
 
 
 #正解率の計算結果を文字列で返す
-def calc_acc(sent_num, ans_list, ch_list, rank_file):
+def calc_acc(ans_list, ch_list, rank_file):
     sent_i=0
     rankOK=0
     choiOK=0
@@ -540,7 +540,7 @@ def model_test(model, test_path, ch_path, word_to_id):
         rank_file=today_str+'rank.txt'
         print_rank(preds, rank_file, id_to_word)
     #正解率の計算，ファイル出力
-    result_str=calc_acc(sent_num, ans_list, ch_list, rank_file)
+    result_str=calc_acc(ans_list, ch_list, rank_file)
 
     return result_str
 
