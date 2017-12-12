@@ -161,24 +161,28 @@ word_emb_ft.py から変更
 
 word_ft_output_vec.py
 word_ft_loss_graph.py から大きく変更
-
+空所にくる単語の確率分布を予測するモデルから，空所にくる単語の各成分を予測するモデルへ
+すなわち，多クラス分類モデルから回帰モデルへ
+そのため活性化関数や損失関数を変更
 
 
 word_ft_class.py
-
+word_ft_loss_graph.pyを書き直したもの
 
 
 word_ft_regression.py
-
+word_ft_output_vec.pyを書き直したもの
 
 
 make_ft_vec.py
-
-
+gensimのfastteztが生成するベクトルを出力するプログラム
+サーバ等でgensimがインストールできないことやバージョン違いの問題に対処するため
+12月以降は使っていない
 
 word_ft_class_without_gensim.py
-
-
+word_ft_class.pyのgensimライブラリ使わないバージョン
+make_ft_vec.pyによって出力されたファイルを利用
+12月以降は使っていない
 
 
 
