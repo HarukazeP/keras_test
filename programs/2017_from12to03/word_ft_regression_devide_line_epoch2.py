@@ -55,15 +55,10 @@ vec_size=100
 maxlen_words = 10
 KeyError_set=set()
 today_str=''
-
-
-#TODO 最後にタブをスペースに置換
-
+tmp_vec_dict=dict()
 
 
 #----- 関数群 -----
-
-
 
 #時間表示
 def print_time(str1):
@@ -74,7 +69,7 @@ def print_time(str1):
 
 #学習データやテストデータへの前処理
 def preprocess_line(before_line):
-	after_line=before_line.lower()
+    after_line=before_line.lower()
     after_line=after_line.replace('0', ' zero ')
     after_line=after_line.replace('1', ' one ')
     after_line=after_line.replace('2', ' two ')
@@ -88,7 +83,7 @@ def preprocess_line(before_line):
     after_line = re.sub(r'[^a-z]', ' ', after_line)
     after_line = re.sub(r'[ ]+', ' ', after_line)
 
-	return after_line
+    return after_line
 
 
 #listの各要素を単語で連結してstring型で返す
@@ -103,11 +98,11 @@ def preprocess(train_path):
     max_len=50000
     new_path=train_path[:-4]+'_preprpcessed'+str(max_len)+'.txt'
     if os.path.exists(new_path)==False:
-        
+
         print('Preprpcessing training data...')
         text=''
         text_len=0
-        
+
         with open(train_path) as f_in:
             with open(new_path, 'w') as f_out:
                 for line in f_in:
@@ -143,7 +138,7 @@ def preprocess(train_path):
                 if text_len!=0:
                     f_out.write(text+'\n')
                 print_time('preprpcess end')
-    
+
     return new_path
 
 
@@ -185,36 +180,48 @@ def vec_to_dict(vec_path):
 def get_ft_vec(word, vec_dict, ft_path, bin_path):
     if word in vec_dict:
         return vec_dict[word]
+    elif word in tmp_vec_dict:
+        return tmp_vec_dict[word]
     else:
         KeyError_set.add(word)    #要素を追加
         cmd='echo "'+word+'" | '+ft_path+' print-word-vectors '+bin_path
         ret  =  subprocess.check_output(cmd, shell=True)
-        #ここ処理
-        
-        return np.zeros((vec_size),dtype=np.float32)
+
+        line=ret.replace('\n', '').replace('\r','')
+        if line[0]==' ':
+            line=line[1:]
+        if line[-1]==' ':
+            line=line[:-1]
+        tmp_list=line.split(' ')
+        word=tmp_list[0]
+        vec=tmp_list[1:]
+        vec_array=np.array(vec,dtype=np.float32)
+        tmp_vec_dict[word]=vec_array
+
+        return vec_array
 
 
 # モデルの構築
 def build_model(len_words, embedding_matrix):
-	f_input=Input(shape=(maxlen_words,))
-	f_emb=Embedding(output_dim=vec_size, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(f_input)
+    f_input=Input(shape=(maxlen_words,))
+    f_emb=Embedding(output_dim=vec_size, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(f_input)
 
-	f_layer=LSTM(128)(f_emb)
+    f_layer=LSTM(128)(f_emb)
 
-	r_input=Input(shape=(maxlen_words,))
-	r_emb=Embedding(output_dim=vec_size, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(r_input)
-	r_layer=LSTM(128)(r_emb)
+    r_input=Input(shape=(maxlen_words,))
+    r_emb=Embedding(output_dim=vec_size, input_dim=len_words+1, input_length=maxlen_words, mask_zero=True, weights=[embedding_matrix], trainable=False)(r_input)
+    r_layer=LSTM(128)(r_emb)
 
-	merged_layer=add([f_layer, r_layer])
+    merged_layer=add([f_layer, r_layer])
 
-	out_layer=Dense(vec_size,activation='relu')(merged_layer)
+    out_layer=Dense(vec_size,activation='relu')(merged_layer)
 
-	my_model=Model([f_input, r_input], out_layer)
+    my_model=Model([f_input, r_input], out_layer)
 
-	optimizer = RMSprop()
-	my_model.compile(loss='mean_squared_error', optimizer=optimizer)
+    optimizer = RMSprop()
+    my_model.compile(loss='mean_squared_error', optimizer=optimizer)
 
-    return model
+    return my_model
 
 
 #単語から辞書IDを返す
@@ -226,7 +233,7 @@ def search_word_indices(word, word_to_id):
 
 
 #1行の文字列を学習データの形式に変換
-def make_train_data(line, len_words, word_to_id):
+def make_train_data(line, len_words, word_to_id, vec_dict, ft_path, bin_path):
     line=line.replace('\n','').replace('\r','')
     if line[0]==' ':
         line=line[1:]
@@ -247,16 +254,16 @@ def make_train_data(line, len_words, word_to_id):
 
         f_X = np.zeros((len_sent, maxlen_words), dtype=np.int)
         r_X = np.zeros((len_sent, maxlen_words), dtype=np.int)
-        Y = np.zeros((len_sent, len_words+1), dtype=np.bool)
+        Y = np.zeros((len_sent, vec_size), dtype=np.bool)
         for i, sentence in enumerate(f_sentences):
             for t, word in enumerate(sentence):
                 f_X[i, t] = search_word_indices(word, word_to_id)
-            Y[i] = get_ft_vec(next_words[i])
+            Y[i] = get_ft_vec(next_words[i], vec_dict, ft_path, bin_path)
 
         for i, sentence in enumerate(r_sentences):
             for t, word in enumerate(sentence):
                 r_X[i, t] = search_word_indices(word, word_to_id)
-    
+
     return f_X, r_X, Y
 
 
@@ -268,32 +275,32 @@ def conect_hist(list_loss, list_val_loss, new_history):
 
 #1行10000単語までのファイルから1行ずつ1回学習する
 #lossやval_lossは各行の学習結果の中央値を返す
-def model_fit_once(train_path, my_model, len_words, word_to_id):
+def model_fit_once(train_path, my_model, len_words, word_to_id, vec_dict, ft_path, bin_path):
     tmp_loss_list=list()
     tmp_val_loss_list=list()
 
     with open(train_path) as f:
         for line in f:
             if line.count(' ')>maxlen_words*10:
-                f_trainX, r_trainX, trainY = make_train_data(line, len_words, word_to_id)
+                f_trainX, r_trainX, trainY = make_train_data(line, len_words, word_to_id, vec_dict, ft_path, bin_path)
                 tmp_hist=my_model.fit([f_trainX,r_trainX], trainY, batch_size=128, epochs=1, validation_split=0.1)
                 conect_hist(tmp_loss_list, tmp_val_loss_list, tmp_hist)
-    
+
     loss=np.median(np.array(tmp_loss_list, dtype=np.float32))
-    val_loss=np.median(np.array(tmp_val_loss_list, dtype=np.float32))    
-    
+    val_loss=np.median(np.array(tmp_val_loss_list, dtype=np.float32))
+
     return loss, val_loss
 
 
 #my_epochの数だけ学習をくりかえす
-def model_fit_loop(train_path, my_model, len_words, word_to_id):
+def model_fit_loop(train_path, my_model, len_words, word_to_id, vec_dict, ft_path, bin_path):
     list_loss=list()
     list_val_loss=list()
     for ep_i in range(my_epoch):
         print('\nEPOCH='+str(ep_i+1)+'/'+str(my_epoch)+'\n')
-        history=model_fit_once(train_path, my_model,len_words, word_to_id)
+        history=model_fit_once(train_path, my_model,len_words, word_to_id, vec_dict, ft_path, bin_path)
         conect_hist(list_loss, list_val_loss, history)
-        
+
         #モデルの保存
         dir_name=today_str+'Model_'+str(ep_i+1)
         os.mkdir(dir_name)
@@ -302,8 +309,8 @@ def model_fit_loop(train_path, my_model, len_words, word_to_id):
         file_model=dir_name+'/my_model'
         open(file_model+'.json', 'w').write(model_json_str)
         my_model.save_weights(file_model+'.h5')
-        
-        
+
+
     return list_loss, list_val_loss
 
 
@@ -321,7 +328,7 @@ def plot_loss(list_loss, list_val_loss, title='model loss'):
 
 #テストデータの前準備
 def prepare_test(test_path, ch_path):
-    
+
     th_len =maxlen_words/2    #テストの際の長さの閾値
     test_f_sentences = []
     test_r_sentences = []
@@ -374,7 +381,7 @@ def prepare_test(test_path, ch_path):
                     data.write(line+'\n')
 
     line_num+=1
-    
+
     return f_sent, r_sent, ans_list, ch_list
 
 
@@ -408,16 +415,16 @@ def calc_similarity(pred_vec, ans_vec):
 
 #全単語の中からベクトルの類似度の高い順にファイル出力（あとで考察用）し，
 #上位1語とその類似度，選択肢の各語の順位と類似度を返す
-def print_and_get_rank(pred_vec, choices, fname):
+def print_and_get_rank(pred_vec, choices, fname, vec_dict, ft_path, bin_path):
     dict_all=dict()
     dict_ch=dict()
     choi_list=choices.split(' ### ')
     for i in range(len_words):
         if i!=0:
             word=indices_word[i]
-            dict_all[word]=calc_similarity(pred_vec, get_ft_vec(word))
+            dict_all[word]=calc_similarity(pred_vec, get_ft_vec(word, vec_dict, ft_path, bin_path))
     for x in choi_list:
-        dict_ch[x]=calc_similarity(pred_vec, get_ft_vec(x))
+        dict_ch[x]=calc_similarity(pred_vec, get_ft_vec(x, vec_dict, ft_path, bin_path))
     list_ch = sorted(dict_ch.items(), key=lambda x: x[1])
     list_all = sorted(dict_all.items(), key=lambda x: x[1])
     with open(fname, 'a') as file:
@@ -441,7 +448,6 @@ def word_to_rank(word, ra_list):
     return str_num
 
 
-#TODO 引数変更したので呼び出し元の修正
 #全単語の内類似度1語の正誤をファイル書き込み，正誤結果を返す
 def calc_rank1word(top, ans, ra_list, ans_sim):
     rank_top=word_to_rank(top[0], ra_list)
@@ -480,20 +486,20 @@ def calc_rank4choices(choices, ans, ra_list, ans_sim):
 
 
 #正解率の計算結果を文字列で返す
-def calc_acc(rank_file, ans_list, preds_list, top_list, choice_list):
+def calc_acc(rank_file, ans_list, preds_list, top_list, choice_list, vec_dict, ft_path, bin_path):
     sent_i=0
     rankOK=0
     choiOK=0
 
     with open(rank_file,'r') as rank:
-		for line in rank:
-		    rank_line=line.lower().replace('\n','').replace('\r','')
-		    rank_list=rank_line.split(' ### ')
-		    ans=ans_list[sent_i]
-		    ans_sim=calc_similarity(preds_list[sent_i], get_ft_vec(ans))
-		    rankOK+=calc_rank1word(top_list[sent_i], ans, rank_list, ans_sim)
-		    choiOK+=calc_rank4choices(choice_list[sent_i], ans, rank_list, ans_sim)
-		    sent_i+=1
+        for line in rank:
+            rank_line=line.lower().replace('\n','').replace('\r','')
+            rank_list=rank_line.split(' ### ')
+            ans=ans_list[sent_i]
+            ans_sim=calc_similarity(preds_list[sent_i], get_ft_vec(ans, vec_dict, ft_path, bin_path))
+            rankOK+=calc_rank1word(top_list[sent_i], ans, rank_list, ans_sim)
+            choiOK+=calc_rank4choices(choice_list[sent_i], ans, rank_list, ans_sim)
+            sent_i+=1
 
     rank_acc=1.0*rankOK/sent_i
     choi_acc=1.0*choiOK/sent_i
@@ -505,12 +511,12 @@ def calc_acc(rank_file, ans_list, preds_list, top_list, choice_list):
     choi_result='choi: '+str(choi_acc)+' ( OK: '+str(choiOK)+'   NG: '+str(choiNG)+' )\n'
 
     result=rank_result+choi_result
-    
+
     return result
 
 
 #テスト
-def model_test(model, test_path, ch_path, word_to_id):
+def model_test(model, test_path, ch_path, word_to_id, vec_dict, ft_path, bin_path):
     #テストデータの前準備
     f_sent, r_sent, ans_list, ch_list = prepare_test(test_path, ch_path)
     sent_num=len(f_sent)
@@ -522,11 +528,12 @@ def model_test(model, test_path, ch_path, word_to_id):
         f_testX, r_testX = make_test_data(f_sent, r_sent, word_to_id)
         preds = min_model.predict([test_f_x,test_r_x], verbose=0)
         preds_list.append(preds)
-		#予測結果の格納
-		tmp=print_and_get_rank(preds, ch_list[i], today_str+'rank.txt')		top=tmp[0]
-		choice=tmp[1]
-		top_list.append(top)
-		choice_list.append(choice)
+        #予測結果の格納
+        tmp=print_and_get_rank(preds, ch_list[i], today_str+'rank.txt')
+        top=tmp[0]
+        choice=tmp[1]
+        top_list.append(top)
+        choice_list.append(choice)
     #正解率の計算，ファイル出力
     result_str=calc_acc(rank_file, ans_list, preds_list, top_list, choice_list, rank_file)
 
@@ -590,7 +597,7 @@ for i in range(len_words):
     if i!=0:
         #IDが0の単語が存在しないので0は飛ばす
         embedding_matrix[i] = get_ft_vec(id_to_word[i], vec_dict, ft_path, bin_path)
-        
+
 
 end_data=print_time('prepare data and fasttext end')
 
@@ -602,7 +609,7 @@ my_model=build_model(len_words, embedding_matrix)
 
 
 # 4.モデルの学習
-loss, val_loss=model_fit_loop(train_path, my_model, len_words, word_to_id)
+loss, val_loss=model_fit_loop(train_path, my_model, len_words, word_to_id, vec_dict, ft_path, bin_path)
 plot_loss(loss, val_loss)
 
 end_train=print_time('train end')
@@ -632,7 +639,7 @@ end_load=print_time('Load min_model end')
 test_path = '../corpus/tmp_testdata_after.txt'     #答えつきテストデータ
 ch_path= '../corpus/tmp_choices_after.txt'     #選択肢つきテストデータ
 
-result=model_test(min_model, test_path, ch_path, word_to_id)
+result=model_test(min_model, test_path, ch_path, word_to_id, vec_dict, ft_path, bin_path)
 print(result)
 
 with open(today_str+'keyerror_words.txt', 'w') as f_key:
@@ -670,7 +677,7 @@ end_test=print_time('test end')
 
 with open(today_str+'summary.txt', 'a') as f:
     f.write('Result of '+os.path.basename(__file__)+'\n\n')
-    
+
     f.write('start_time = '+ start_time_str+'\n')
     f.write('epoch = '+ my_epoch+'\n')
     f.write('train_data = '+ train_path+'\n')
@@ -689,5 +696,3 @@ with open(today_str+'summary.txt', 'a') as f:
 
     end_time=print_time('all end')
     f.write('TIME total = '+ str(end_time-start_time)+'\n')
-
-
