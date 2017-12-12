@@ -3,30 +3,30 @@ github上で表示される辞書順ではなく作成日時順に各プログ�
 
 -----ForCourpusディレクトリ内----------------------------------------
 
-FilePro5.java　と　WikiSentCheck.java
+FilePro5.java と WikiSentCheck.java
 以前に作成したもの．wp2txtで得たWikipediaの記事データを整形するやつ
 
 
 process_wiki.py
 Wikipediaの記事コーパスを作成
-http://tatzyr.hatenablog.com/entry/2015/10/24/162102　このサイトにあったものだが今は記事消えてる
+http://tatzyr.hatenablog.com/entry/2015/10/24/162102 このサイトにあったものだが今は記事消えてる
 
 
 -----2017_from04to07ディレクトリ内----------------------------------------
 
 original.py
-kerasのチュートリアルプログラムlstm_text_generation.py　そのまま
-https://github.com/fchollet/keras/tree/master/examples　より
+kerasのチュートリアルプログラムlstm_text_generation.py そのまま
+https://github.com/fchollet/keras/tree/master/examples より
 
 
 original_time.py
-original.py　に時間表示を追加
+original.py に時間表示を追加
 
 
--------これより下「char」で始まるものは文字ベースで予測するモデル．「word」で始まるものは単語ベースで予測するモデル
+#### これより下「char」で始まるものは文字ベースで予測するモデル．「word」で始まるものは単語ベースで予測するモデル
 
 sampling_test.py
-original_time.py　に簡単な前処理追加（改行をスペースに，スペースの連続を消す），繰り返し回数減らして軽量化
+original_time.py に簡単な前処理追加（改行をスペースに，スペースの連続を消す），繰り返し回数減らして軽量化
 サンプリングが何をやっているのか確認用
 
 
@@ -40,7 +40,7 @@ word_test.py
 
 
 char_word_test.py
-char_sampling2_test.py　に前処理を追加．（a～zのみに）
+char_sampling2_test.py に前処理を追加．（a～zのみに）
 文字べースで予測し，スペースが出るまでを1単語として出力
 
 
@@ -50,40 +50,40 @@ Mergeメソッドを用いているが，このMergeは2017/8以降使えなく�
 
 
 char_merge_new_test.py
-char_merge_old_test.py　をMergeからfunctionAPIを用いた方法に変えたもの
+char_merge_old_test.py をMergeからfunctionAPIを用いた方法に変えたもの
 
 
 word_merge_new_test.py
-char_merge_new_test.py　の単語ベースver
+char_merge_new_test.py の単語ベースver
 
 
 
-word_merge_new_wiki_once.py　
+word_merge_new_wiki_once.py 
 ※不完全なプログラム
-word_merge_new_test.py　の学習データをwikiに変えたもの．iterationループをなくした
+word_merge_new_test.py の学習データをwikiに変えたもの．iterationループをなくした
 モデルを保存する機能追加
 これではデータが大きすぎて(約6.3GB)動かなかった
 
 
 word_miniWiki.py
-word_merge_new_wiki_once.py　から学習データ変えただけ
+word_merge_new_wiki_once.py から学習データ変えただけ
 学習データn行おきに1行抽出して約1.5MBに
 
 
 word_wiki_line.py
 ※不完全なプログラム
-word_miniWiki.py　から学習データが大きい場合に備えて1行ずつ学習していく
-AttributeError:'Progbar Logger' object has no attribute 'log_values'　みたいなエラーが出てうごかない
+word_miniWiki.py から学習データが大きい場合に備えて1行ずつ学習していく
+AttributeError:'Progbar Logger' object has no attribute 'log_values' みたいなエラーが出てうごかない
 
 
 word_wiki_not_line.py
-word_miniWiki.py　から辞書にその他を表す#OTHERを追加
+word_miniWiki.py から辞書にその他を表す#OTHERを追加
 出力ファイル名に日付を付与
 
 
 word_save_model_goudouzemi2.py
 合同ゼミ用
-word_wiki_not_line.py　から出力とか微妙に変更
+word_wiki_not_line.py から出力とか微妙に変更
 
 
 word_load_model_goudouzemi2.py
@@ -94,17 +94,17 @@ word_load_model_goudouzemi2.py
 
 calc_rank_ans.py
 合同ゼミ実験1用
-word_load_model_goudouzemi2.py　が出力したファイルや正解データから正解率を計算
+word_load_model_goudouzemi2.py が出力したファイルや正解データから正解率を計算
 
 
 calc_preds_ans.py
 合同ゼミ実験2用
-word_load_model_goudouzemi2.py　が出力したファイルや正解データから正解率を計算
+word_load_model_goudouzemi2.py が出力したファイルや正解データから正解率を計算
 
 
 calc_preds_to_rank.py
 合同ゼミ実験2用
-word_load_model_goudouzemi2.py　が出力したファイルや正解データから予測の確率順位を出力
+word_load_model_goudouzemi2.py が出力したファイルや正解データから予測の確率順位を出力
 
 
 
@@ -117,23 +117,23 @@ word_all_after_goudouzemi.py
 
 
 word_onehot.py
-word_all_after_goudouzemi.py　とほど同じ
+word_all_after_goudouzemi.py とほど同じ
 学習回数(epoch)などを変更して実験する
 
 
 word_embedding.py
-word_onehot.py　からベクトル化をonehotではなくembedding用いたものへ変更
+word_onehot.py からベクトル化をonehotではなくembedding用いたものへ変更
 文字列→単語id+1→embeddingの流れ
 embeddingはデフォルトのものを使用しておりword2vecなどは使っていない
 embeddingも同時に学習していく
 
 
 word_embedding_bigfile.py
-word_embedding.py　を巨大ファイルにも対応させたもの
+word_embedding.py を巨大ファイルにも対応させたもの
 まず1行ずつ読み取り辞書の作成
 その後，1000行ずつに学習していくもの
 
------これ以降のプログラムは全てこの巨大ファイル対応形式のもの
+#### これ以降のプログラムは全てこの巨大ファイル対応形式のもの
 
 
 word_w2v_test.py
@@ -142,16 +142,16 @@ word_w2v_test.py
 
 
 word_ft_test.py
-word_w2v_test.pyのfasttext版
+word_w2v_test.py のfasttext版
 
 
 word_emb_w2c.py
 embeddingの際，word2vecのベクトルを利用し，embedding層は学習を行わないモデル
-word_embedding.pyとword_w2v_test.pyの合体版みたいな
+word_embedding.py とword_w2v_test.py の合体版みたいな
 
 
 word_emb_ft.py
-word_emb_w2c.pyのfasttext版
+word_emb_w2c.py のfasttext版
 
 
 word_ft_loss_graph.py
@@ -167,11 +167,11 @@ word_ft_loss_graph.py から大きく変更
 
 
 word_ft_class.py
-word_ft_loss_graph.pyを書き直したもの
+word_ft_loss_graph.py を書き直したもの
 
 
 word_ft_regression.py
-word_ft_output_vec.pyを書き直したもの
+word_ft_output_vec.py を書き直したもの
 
 
 make_ft_vec.py
@@ -180,8 +180,8 @@ gensimのfastteztが生成するベクトルを出力するプログラム
 12月以降は使っていない
 
 word_ft_class_without_gensim.py
-word_ft_class.pyのgensimライブラリ使わないバージョン
-make_ft_vec.pyによって出力されたファイルを利用
+word_ft_class.py のgensimライブラリ使わないバージョン
+make_ft_vec.py によって出力されたファイルを利用
 12月以降は使っていない
 
 
@@ -193,7 +193,13 @@ make_ft_vec.pyによって出力されたファイルを利用
 
 -----2017_from12to03ディレクトリ内----------------------------------------
 
+word_ft_class_devide_line_epoch2.py
+word_ft_class.py から大きく変更
+1行に全て書かれている巨大データへの対応
+様々な処理の関数化
+いろいろデバッグ中なのでepoch=2としている
 
-
-
+word_ft_regression_devide_line_epoch2.py
+word_ft_regression.py から大きく変更
+word_ft_class_devide_line_epoch2.py と同様にいろいろ変えている
 
