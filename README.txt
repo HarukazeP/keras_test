@@ -12,14 +12,14 @@ corpus
 log
 プログラムの出力を記録したファイル
 python ○○○.py 2>&1 | tee ○○○.txt　で作成
-一時的な確認用なので全てのプログラムのログをおいているわけではない
+一時的な確認用なので一部のプログラムのログのみ
 
 
 model_image
 各プログラムのニューラルネットワークモデルの構造
 画像○○○.pngとプログラム○○○.pyが対応してある
 plot_model(model, to_file='./model_image/○○○.png')　で生成
-全てのプログラムの画像おいているわけではない
+一時的な確認用なので一部のプログラムモデルのみ
 
 
 programs
@@ -36,7 +36,6 @@ programs
 ・bidirectionalレイヤーの実装
 ・単語1語ではなく2語以上へも拡張
 ・LSTM以外にCNNとかQRNNも試してみる？
-・損失関数とかのグラフ出力（matplot）
 ・earlystopping関数
 ・attensionモデルの構造
 
