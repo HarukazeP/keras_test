@@ -566,11 +566,12 @@ start_time_str = start_time.strftime('%Y_%m_%d_%H%M')
 
 #モデルとか結果とかを格納するディレクトリの作成
 today_str=start_time_str+'epoch'+str(my_epoch)
-if os.path.exists(today_str)==False:
-    os.mkdir(today_str)
 program_name=os.path.basename(__file__)
 settings=program_name[program_name.find('_e'):-3]
-today_str='./'+today_str+settings+'/'
+today_str=today_str+settings
+if os.path.exists(today_str)==False:
+    os.mkdir(today_str)
+today_str='./'+today_str+'/'
 
 #学習データの候補
 train_big='../corpus/WikiSentWithEndMark1.txt'   # 約5.8GB，約2000万行
