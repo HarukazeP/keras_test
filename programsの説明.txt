@@ -197,9 +197,10 @@ word_ft_class_devide_line_epoch2.py
 word_ft_class.py から大きく変更
 1行に全て書かれている巨大データへの対応
 様々な処理の関数化
-いろいろデバッグ中なのでepoch=2としている
+いろいろデバッグ中なので学習データも小さく，epoch=2としている
 
 word_ft_regression_devide_line_epoch2.py
 word_ft_regression.py から大きく変更
 word_ft_class_devide_line_epoch2.py と同様にいろいろ変えている
+いろいろデバッグ中なので学習データも小さく，epoch=2としている
 
