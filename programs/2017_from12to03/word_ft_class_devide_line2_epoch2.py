@@ -299,8 +299,9 @@ def model_fit_loop(train_path, my_model, len_words, word_to_id):
     list_val_loss=list()
     for ep_i in range(my_epoch):
         print('\nEPOCH='+str(ep_i+1)+'/'+str(my_epoch)+'\n')
-        history=model_fit_once(train_path, my_model,len_words, word_to_id)
-        conect_hist(list_loss, list_val_loss, history)
+        loss, val_loss=model_fit_once(train_path, my_model,len_words, word_to_id)
+        list_loss.extend(loss)
+        list_val_loss.extend(val_loss)
         
         #モデルの保存
         dir_name=today_str+'Model_'+str(ep_i+1)
@@ -714,5 +715,4 @@ with open(today_str+'summary.txt', 'a') as f:
 
     end_time=print_time('all end')
     f.write('TIME total = '+ str(end_time-start_time)+'\n')
-
 
