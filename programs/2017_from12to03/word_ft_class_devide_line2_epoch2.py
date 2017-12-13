@@ -91,10 +91,11 @@ def preprocess(train_path):
         print('Preprpcessing training data...')
         text=''
         text_len=0
-        
+        i=0
         with open(train_path) as f_in:
             with open(new_path, 'w') as f_out:
                 for line in f_in:
+                    i+=1
                     #この前処理はtext8とかの前処理と同じ
                     line=line.lower()
                     line=line.replace('0', ' zero ')
@@ -138,6 +139,7 @@ def preprocess(train_path):
                 #for終わり（ファイルの最後の行の処理）
                 if text_len!=0:
                     f_out.write(text+'\n')
+                print('total '+str(i)+' line\n')
                 print_time('preprpcess end')
     
     return new_path
@@ -300,8 +302,8 @@ def model_fit_loop(train_path, my_model, len_words, word_to_id):
     for ep_i in range(my_epoch):
         print('\nEPOCH='+str(ep_i+1)+'/'+str(my_epoch)+'\n')
         loss, val_loss=model_fit_once(train_path, my_model,len_words, word_to_id)
-        list_loss.extend(loss)
-        list_val_loss.extend(val_loss)
+        list_loss.append(loss)
+        list_val_loss.append(val_loss)
         
         #モデルの保存
         dir_name=today_str+'Model_'+str(ep_i+1)
@@ -334,8 +336,6 @@ def prepare_test(test_path, ch_path):
     th_len =maxlen_words/2    #テストの際の長さの閾値
     test_f_sentences = []
     test_r_sentences = []
-    sents_num=0
-
 
     #テストデータへの読み込みと前処理
     #テストデータは学習データと異なり容量大きくないので一気に読み込んでいる
@@ -371,41 +371,38 @@ def prepare_test(test_path, ch_path):
                     test_r_line=test_r_line[:maxlen_words]
                 test_f_sentences.append(test_f_line)
                 test_r_sentences.append(test_r_line[::-1])
-                sents_num+=1
                 #テスト対象のデータの答えと選択肢をリストに格納
-                #tmp_ans=ans_lines[line_num]
                 tmp_ans=all_lines[line_num]
                 tmp_ans=tmp_ans[tmp_ans.find('<')+1:tmp_ans.find('>')]
                 ans_list.append(tmp_ans)
                 tmp_ch=ch_lines[line_num]
                 tmp_ch=tmp_ch[tmp_ch.find('<')+1:tmp_ch.find('>')]
                 ch_list.append(tmp_ch)
+                line_num+=1
                 #テスト対象となるデータのみを出力
                 with open(today_str+'testdata.txt', 'a') as data:
                     data.write(line+'\n')
-
-    line_num+=1
     
-    return f_sent, r_sent, ans_list, ch_list
+    return test_f_sentences, test_r_sentences, ans_list, ch_list
 
 
 #テストデータのベクトル化
 def make_test_data(f_sent, r_sent, word_to_id):
     test_f_x = np.zeros((1, maxlen_words))
     test_r_x = np.zeros((1, maxlen_words))
-    for t, word in enumerate(f_sent[i]):
+    for t, word in enumerate(f_sent):
         tmp_index = search_word_indices(word, word_to_id)
-        if(len(f_sent[i])<maxlen_words):
-            test_f_x[0, t+maxlen_words-len(f_sent[i])] = tmp_index
+        if(len(f_sent)<maxlen_words):
+            test_f_x[0, t+maxlen_words-len(f_sent)] = tmp_index
         else:
             test_f_x[0, t] = tmp_index
-    for t, word in enumerate(r_sent[i]):
+    for t, word in enumerate(r_sent):
         tmp_index = search_word_indices(word, word_to_id)
-        if(len(f_sent[i])<maxlen_words):
-            test_r_x[0, t+maxlen_words-len(r_sent[i])] = tmp_index
+        if(len(f_sent)<maxlen_words):
+            test_r_x[0, t+maxlen_words-len(r_sent)] = tmp_index
         else:
             test_r_x[0, t] = tmp_index
-    return f_X, r_X
+    return test_f_x, test_r_x
 
 
 #与えられた確率付き単語リストからランキング順に単語のみファイルへ書き込み
@@ -549,14 +546,21 @@ def model_test(model, test_path, ch_path, word_to_id):
     sent_num=len(f_sent)
     #テストの実行
     for i in range(sent_num):
-        f_testX, r_testX = make_test_data(f_sent, r_sent, word_to_id)
-        preds = min_model.predict([test_f_x,test_r_x], verbose=0)[0]#    TODO この[0]の意味確認
+        f_testX, r_testX = make_test_data(f_sent[i], r_sent[i], word_to_id)
+        preds = min_model.predict([f_testX,r_testX], verbose=0)[0]#    TODO この[0]の意味確認
         rank_file=today_str+'rank.txt'
         print_rank(preds, rank_file, id_to_word)
     #正解率の計算，ファイル出力
     result_str=calc_acc(ans_list, ch_list, rank_file)
 
     return result_str
+
+
+#model.summary()のファイル出力用
+def myprint(s):
+    with open(today_str+'model_summary.txt','a') as f:
+        print(s, file=f)
+
 
 
 
@@ -576,16 +580,17 @@ today_str='./'+today_str+'/'
 
 #学習データの候補
 train_big='../corpus/WikiSentWithEndMark1.txt'   # 約5.8GB，約2000万行
-train_enwiki='../corpus/enwiki.txt'   # 約24GB，1行のみ，約435億単語(約237種類)
+train_enwiki='../corpus/enwiki.txt'   # 約24GB，1行のみ，約435億単語(920万5021種類)
 train_mid='../corpus/miniWiki_tmp8.txt'   # 約1.5MB，約5000行
 train_small='../corpus/nietzsche.txt'   # 約600KB，約1万行
+train_test='../corpus/mini_text8.txt'
 
-train_text8='../corpus/text8.txt'   # 約95MB 1行のみ, 約1700万単語(約7万種類)  http://mattmahoney.net/dc/text8.zip
+train_text8='../corpus/text8.txt'   # 約95MB 1行のみ, 約1700万単語(25万3854種類)  http://mattmahoney.net/dc/text8.zip
 
 
 
 # 1.学習データの前処理など
-tmp_path = train_text8        #使用する学習データ
+tmp_path = train_test        #使用する学習データ
 print('Loading  '+tmp_path)
 train_path=preprocess(tmp_path)
 
@@ -599,10 +604,13 @@ https://github.com/facebookresearch/fastText
 ft_path='../../FastText/fastText-0.1.0/fasttext'
 
 #ベクトルファイルの候補
-vec_enwiki='../../FastText/Model/enwiki_dim'+str(vec_size)+'.vec'
-bin_enwiki='../../FastText/Model/enwiki_dim'+str(vec_size)+'.bin'
-vec_text8='../../FastText/Model/text8_dim'+str(vec_size)+'.vec'
-bin_text8='../../FastText/Model/text8_dim'+str(vec_size)+'.bin'
+vec_enwiki='../../FastText/Model/enwiki_dim'+str(vec_size)+'_minC0.vec'
+bin_enwiki='../../FastText/Model/enwiki_dim'+str(vec_size)+'_minC0.bin'
+vec_text8='../../FastText/Model/text8_dim'+str(vec_size)+'_minC0.vec'
+bin_text8='../../FastText/Model/text8_dim'+str(vec_size)+'_minC0.bin'
+
+vec_small='../../FastText/Model/nietzsche_dim'+str(vec_size)+'_minC0.vec'
+bin_small='../../FastText/Model/nietzsche_dim'+str(vec_size)+'_minC0.bin'
 
 #実際に使うもの
 vec_path=vec_text8
@@ -649,6 +657,7 @@ optimizer = RMSprop()
 min_model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
 plot_model(min_model, to_file=today_str+'model.png', show_shapes=True)
+min_model.summary(print_fn=myprint)
 
 end_load=print_time('Load min_model end')
 
@@ -659,7 +668,7 @@ test_path = '../corpus/tmp_testdata_after.txt'     #答えつきテストデー�
 ch_path= '../corpus/tmp_choices_after.txt'     #選択肢つきテストデータ
 
 result=model_test(min_model, test_path, ch_path, word_to_id)
-print(result)
+print('\n'+result)
 
 with open(today_str+'keyerror_words.txt', 'w') as f_key:
     for word in KeyError_set:
@@ -698,18 +707,15 @@ with open(today_str+'summary.txt', 'a') as f:
     f.write('Result of '+os.path.basename(__file__)+'\n\n')
     
     f.write('start_time = '+ start_time_str+'\n')
-    f.write('epoch = '+ my_epoch+'\n')
+    f.write('epoch = '+str(my_epoch)+'\n')
     f.write('train_data = '+ train_path+'\n')
-    f.write('kind of words ='+ len_words+'\n')
+    f.write('kind of words ='+str(len_words)+'\n')
     f.write('min_model = '+ min_model_file+'\n\n')
 
     f.write('result\n'+ result+'\n')
 
-    summary=min_model.summary()
-    f.write('model summary\n'+ summary+'\n\n')
-
     f.write('TIME prepare data and fasttext= '+ str(end_data-start_time)+'\n')
-    f.write('TIME train = '+ str(end_train-end_ft)+'\n')
+    f.write('TIME train = '+ str(end_train-end_data)+'\n')
     f.write('TIME load min_model = '+ str(end_load-end_train)+'\n')
     f.write('TIME test = '+ str(end_test-end_load)+'\n\n')
 
