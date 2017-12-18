@@ -294,7 +294,9 @@ def model_fit_once(train_path, my_model, len_words, word_to_id, vec_dict, ft_pat
 
     loss=np.median(np.array(tmp_loss_list, dtype=np.float32))
     val_loss=np.median(np.array(tmp_val_loss_list, dtype=np.float32))
-
+    with open(today_str+'loss.txt', 'a') as f:
+        f.write('loss='+str(loss)+'  , val_loss='+str(val_loss)+'\n')
+    
     return loss, val_loss
 
 
@@ -648,7 +650,8 @@ min_model.load_weights(min_weight_file)
 optimizer = RMSprop()
 min_model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
-min_model.summary(print_fn=myprint)
+#min_model.summary(print_fn=myprint)
+#summaryをファイル出力したいけどこれではうまくいかない
 plot_model(min_model, to_file=today_str+'model.png', show_shapes=True)
 
 end_load=print_time('Load min_model end')
@@ -694,6 +697,7 @@ end_test=print_time('test end')
 '''
 
 #実行結果のあれこれをファイル書き込み
+min_model.summary()
 
 with open(today_str+'summary.txt', 'a') as f:
     f.write('Result of '+program_name+'\n\n')
