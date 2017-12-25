@@ -52,7 +52,7 @@ When I told Misako the news, she seemed <surprised> .
 
 
 Does this answer <make> sense to you? I can' t understand it.
-Taro is now devoting all his time and energy <make> English.
+Taro is now devoting all his time and energy <to studying> English.
 Every winter, colds are <common> at schools.
 Akiko had her bag <stolen> and lost all her money.
 By the time the 2002 World Cup was held, soccer <had> already become a leading sport in Japan.
@@ -218,11 +218,3 @@ Thanks to their <friendly> comments after my presentation, I felt very relieved.
 <Until> you' ve completed this required class, you <won' t> be able to graduate.
 Wood <used to> be used as the main fuel, but nowadays fossil fuels <are used> widely.
 <It is> so considerate <of> him to come and see his grandmother in the hospital every day.
-
-
-
-
-
-
-
-
