@@ -219,11 +219,6 @@ lstm  : 通常のLSTMか，bidirectionalLSTMか
 den1  : dence層，つまり全結合層の配置
 
 
-word_ft_regression_nitsuma.py
-word_ft_regression_e100 シリーズと同系
-新妻先生から試してみては？と提案された構造のモデル
-
-
 word_ft_regression_new_e100 シリーズ （word_ft_regression_new_e100_w5_concat_lstm_den1.py など）
 word_ft_regression_e100 シリーズから変更
 テストデータの変更とテスト部分の関数（prepare_test）を変更
